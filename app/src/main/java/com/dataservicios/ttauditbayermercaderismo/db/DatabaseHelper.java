@@ -15,6 +15,7 @@ import com.dataservicios.ttauditbayermercaderismo.model.Media;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.PollOption;
 import com.dataservicios.ttauditbayermercaderismo.model.Product;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
@@ -37,9 +38,9 @@ import java.util.List;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String LOG_TAG = DatabaseHelper.class.getSimpleName();
 	// name of the database file for your application -- change to something appropriate for your app
-	private static final String DATABASE_NAME = "db_prueba_1";
+	private static final String DATABASE_NAME = "db_bayer_m";
 	// any time you make changes to your database objects, you may have to increase the database version
-	private static final int DATABASE_VERSION = 14;
+	private static final int DATABASE_VERSION = 2;
     private Context myContext;
 	// the DAO object we use to access the SimpleData table
     //pressure
@@ -57,6 +58,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<RouteStoreTime, Integer>        RouteStoreTimeDao   = null;
 	private Dao<Publicity, Integer>             PublicityDao        = null;
 	private Dao<PublicityHistory, Integer>      PublicityHistoryDao = null;
+	private Dao<ProductDetail, Integer>         ProductDetailDao = null;
 	private Dao<Product, Integer>               ProductDao = null;
 
 	public DatabaseHelper(Context context) {
@@ -82,7 +84,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTable(connectionSource, RouteStoreTime.class       );
 			TableUtils.createTable(connectionSource, Publicity.class            );
 			TableUtils.createTable(connectionSource, PublicityHistory.class     );
-			TableUtils.createTable(connectionSource, Product.class     );
+			TableUtils.createTable(connectionSource, ProductDetail.class        );
+			TableUtils.createTable(connectionSource, Product.class              );
 
             Log.i(LOG_TAG, "execute method onCreate: Can't create Tables");
             preloadData(db,myContext);
@@ -126,6 +129,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, RouteStoreTime.class,true);
             TableUtils.dropTable(connectionSource, Publicity.class,true     );
             TableUtils.dropTable(connectionSource, PublicityHistory.class,true);
+            TableUtils.dropTable(connectionSource, ProductDetail.class,true);
             TableUtils.dropTable(connectionSource, Product.class,true);
             onCreate(db,connectionSource);
 
@@ -292,16 +296,27 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         return PublicityHistoryDao;
     }
 
-    public Dao<Product, Integer> getProductDao() {
-            if (null == ProductDao) {
+    public Dao<ProductDetail, Integer> getProductDetailDao() {
+            if (null == ProductDetailDao) {
                 try {
-                    ProductDao = getDao(Product.class);
+                    ProductDetailDao = getDao(ProductDetail.class);
                 }catch (java.sql.SQLException e) {
                     e.printStackTrace();
                 }
             }
-            return ProductDao;
+            return ProductDetailDao;
         }
+
+    public Dao<Product, Integer> getProductDao() {
+        if (null == ProductDao) {
+            try {
+                ProductDao = getDao(Product.class);
+            }catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return ProductDao;
+    }
 
     private void preloadData(SQLiteDatabase db, Context context) {
 

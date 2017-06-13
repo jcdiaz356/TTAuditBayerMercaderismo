@@ -12,8 +12,11 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -28,6 +31,7 @@ import com.dataservicios.ttauditbayermercaderismo.model.AuditRoadStore;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.Product;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.RouteStoreTime;
@@ -35,6 +39,7 @@ import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteRepo;
@@ -43,6 +48,8 @@ import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
 import com.dataservicios.ttauditbayermercaderismo.util.GPSTracker;
 import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
+import com.dataservicios.ttauditbayermercaderismo.util.SyncData;
+import com.dataservicios.ttauditbayermercaderismo.view.fragment.RouteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -69,6 +76,7 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
     private Button                btSaveGeo;
     private Button                btcloseRouteStore;
     private ImageButton           ibEditAddress;
+    private ImageButton           imgAuditStore;
     private int                   user_id;
     private int                   store_id;
     private int                   company_id;
@@ -81,6 +89,7 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
     private CompanyRepo           companyRepo ;
     private Route                 route ;
     private Store                 store ;
+    private Company               company ;
     private GPSTracker            gpsTracker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,9 +133,10 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
         btSaveGeo           = (Button)   findViewById(R.id.btSaveGeo);
         btcloseRouteStore   = (Button)   findViewById(R.id.btcloseRouteStore);
         ibEditAddress       = (ImageButton) findViewById(R.id.ibEditAddress);
-        store               = (Store) storeRepo.findById(store_id);
+        imgAuditStore             = (ImageButton) findViewById(R.id.imgAuditStore);
 
-        //ArrayList<Route> lista = (ArrayList<Route>) routeRepo.findAll();
+
+        store = (Store) storeRepo.findById(store_id);
         route = (Route) routeRepo.findById(store.getRoute_id());
 
         tvRouteFullName.setText(String.valueOf(route.getFullname()));
@@ -138,10 +148,46 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
         tvDistrict.setText(String.valueOf(store.getDistrict()));
         tvType.setText(String.valueOf(store.getType()));
 
+        ibEditAddress.setVisibility(View.VISIBLE);
         ibEditAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(activity, "No disponible",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(activity, "No disponible",Toast.LENGTH_SHORT).show();
+                Bundle bundle  =  new Bundle();
+                bundle.putInt("store_id",store.getId());
+                bundle.putInt("action",1); // Action 0= edit Adress
+                Intent intent = new Intent(activity,EditStoreActivity.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
+        imgAuditStore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                android.support.v7.app.AlertDialog.Builder builder  = new android.support.v7.app.AlertDialog.Builder(activity);
+                builder.setTitle(R.string.message_sync_audits_store);
+                builder.setMessage(R.string.message_sync_audits_store_information);
+                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        new syncAuditRoadStore().execute();
+
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
+                builder.setCancelable(false);
+
             }
         });
 
@@ -222,12 +268,12 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
                         activity.startActivity(intent);
                     } else if (audit_id == 58){
 
-                        ProductRepo productRepo = new ProductRepo(activity);
-                        ArrayList<Product> products = (ArrayList<Product>) productRepo.findAll();
+                        ProductDetailRepo productDetailRepo = new ProductDetailRepo(activity);
+                        ArrayList<ProductDetail> productDetails = (ArrayList<ProductDetail>) productDetailRepo.findAll();
 
-                        for (Product p: products){
+                        for (ProductDetail p: productDetails){
                             p.setStatus(0);
-                            productRepo.update(p);
+                            productDetailRepo.update(p);
                         }
 
                         Bundle bundle = new Bundle();
@@ -236,6 +282,22 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
                         Intent intent = new Intent(activity,ProductPriceActivity.class);
                         intent.putExtras(bundle);
                         activity.startActivity(intent);
+                    } else if (audit_id == 57){
+
+                            ProductRepo productRepo = new ProductRepo(activity);
+                            ArrayList<Product> products = (ArrayList<Product>) productRepo.findByTypeCompetity(1);
+
+                            for (Product p: products){
+                                p.setStatus(0);
+                                productRepo.update(p);
+                            }
+
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("store_id", Integer.valueOf(store_id));
+                            bundle.putInt("audit_id", Integer.valueOf(audit_id));
+                            Intent intent = new Intent(activity,ProductCompetityActivity.class);
+                            intent.putExtras(bundle);
+                            activity.startActivity(intent);
 
                     } else{
 
@@ -247,7 +309,6 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
                         poll.setOrder(1);
                         PollActivity.createInstance((Activity) activity, store_id,audit_id,poll);
                     }
-
                 }
             });
             i ++ ;
@@ -430,14 +491,13 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
 
 
     }
-
     private class saveCloseRouteStore extends AsyncTask<Void , Integer , Boolean> {
         /**
          * Antes de comenzar en el hilo determinado, Mostrar progresión
          * */
         @Override
         protected void onPreExecute() {
-            //tvCargando.setText("Cargando Product...");
+            //tvCargando.setText("Cargando ProductDetail...");
             pDialog = new ProgressDialog(activity);
             pDialog.setMessage(getString(R.string.text_loading));
             pDialog.setIndeterminate(false);
@@ -488,6 +548,52 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
             }
             pDialog.dismiss();
         }
+    }
+    private class syncAuditRoadStore extends AsyncTask<Void, String, ArrayList<AuditRoadStore>> {
+        @Override
+        protected ArrayList<AuditRoadStore> doInBackground(Void... params) {
+
+            ArrayList<AuditRoadStore> auditRoadStores;
+
+            auditRoadStores = AuditUtil.getAuditRoadStore(company_id,route.getId(),store_id);
+            return auditRoadStores;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(activity);
+            pDialog.setMessage(getString(R.string.text_loading));
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<AuditRoadStore> auditRoadStores) {
+            super.onPostExecute(auditRoadStores);
+            if (auditRoadStores.size() >0 ) {
+                AuditRepo auditRepo = new AuditRepo(activity);
+                for(AuditRoadStore m: auditRoadStores){
+                    Audit audit = (Audit) auditRepo.findById(m.getAudit_id());
+                    m.setList(audit);
+                    auditRoadStoreRepo.update(m);
+                }
+                ArrayList<AuditRoadStore> lista = (ArrayList<AuditRoadStore>) auditRoadStoreRepo.findByStoreId(store_id);
+                onRestart();
+            } else {
+                Toast.makeText(activity,R.string.mesaage_no_get_data,Toast.LENGTH_SHORT).show();
+            }
+            pDialog.dismiss();
+
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+        }
+
+
     }
 
 

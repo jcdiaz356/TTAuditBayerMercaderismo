@@ -28,6 +28,7 @@
         <item name="colorButtonNormal">@color/colorPrimaryDark</item>
         <item name="colorControlHighlight">@color/colorPrimary</item>
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/textsize_min</item>
     </style>
 
     <style name="ButtonCloseAudit" parent="Theme.AppCompat.Light">

@@ -64,11 +64,6 @@
                     android:text="@string/tex_finish"
                     android:theme="@style/ButtonCloseAudit" />
             </LinearLayout>
-
         </LinearLayout>
-
-
-
     </LinearLayout>
-
 </android.support.design.widget.CoordinatorLayout>

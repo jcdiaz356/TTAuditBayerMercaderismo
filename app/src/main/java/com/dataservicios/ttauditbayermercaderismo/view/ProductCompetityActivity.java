@@ -21,18 +21,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dataservicios.ttauditbayermercaderismo.R;
-import com.dataservicios.ttauditbayermercaderismo.adapter.ProductDetailAdapterRecyclerView;
+import com.dataservicios.ttauditbayermercaderismo.adapter.ProductAdapterRecyclerView;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Audit;
 import com.dataservicios.ttauditbayermercaderismo.model.AuditRoadStore;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
-import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
+import com.dataservicios.ttauditbayermercaderismo.model.Product;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
-import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
@@ -41,43 +41,42 @@ import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ProductPriceActivity extends AppCompatActivity {
+public class ProductCompetityActivity extends AppCompatActivity {
+
     private static final String LOG_TAG = ProductPriceActivity.class.getSimpleName();
-    private SessionManager                          session;
-    private Activity                                activity =  this;
-    private ProgressDialog                          pDialog;
+    private SessionManager session;
+    private Activity activity =  this;
+    private ProgressDialog pDialog;
     private int                                     user_id;
     private int                                     store_id;
     private int                                     audit_id;
-    private TextView                                tvTotal;
-    private Button                                  btSave;
-    private ProductDetailRepo productDetailRepo;
-    private StoreRepo                               storeRepo ;
-    private RouteRepo                               routeRepo ;
-    private CompanyRepo                             companyRepo ;
-    private AuditRepo                               auditRepo ;
-    private AuditRoadStoreRepo                      auditRoadStoreRepo ;
-    private ProductDetailAdapterRecyclerView productAdapterRecyclerView;
-    private RecyclerView                            productRecyclerView;
-    private Audit                                   audit ;
-    private ProductDetail productDetail;
-    private Company                                 company ;
-    private Route                                   route ;
-    private Store                                   store ;
-    private ArrayList<ProductDetail> productDetails;
+    private TextView tvTotal;
+    private Button btSave;
+    private ProductRepo productRepo;
+    private StoreRepo storeRepo ;
+    private RouteRepo routeRepo ;
+    private CompanyRepo companyRepo ;
+    private AuditRepo auditRepo ;
+    private AuditRoadStoreRepo auditRoadStoreRepo ;
+    private ProductAdapterRecyclerView productAdapterRecyclerView;
+    private RecyclerView productRecyclerView;
+    private Audit audit ;
+    private Product product;
+    private Company company ;
+    private Route route ;
+    private Store store ;
+    private ArrayList<Product> products;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_product_price);
-
+        setContentView(R.layout.activity_product_competity);
         tvTotal                 = (TextView) findViewById(R.id.tvTotal);
         btSave                  = (Button) findViewById(R.id.btSave);
-
         DatabaseManager.init(this);
 
         storeRepo           = new StoreRepo(activity);
-        productDetailRepo = new ProductDetailRepo(activity);
+        productRepo = new ProductRepo(activity);
         auditRepo           = new AuditRepo(activity);
         companyRepo         = new CompanyRepo(activity);
         routeRepo           = new RouteRepo(activity);
@@ -103,20 +102,20 @@ public class ProductPriceActivity extends AppCompatActivity {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         productRecyclerView.setLayoutManager(linearLayoutManager);
 
-        productDetails = (ArrayList<ProductDetail>) productDetailRepo.findByStoreType(store.getType());
+        products = (ArrayList<Product>) productRepo.findByTypeCompetity(1);
 
-        productAdapterRecyclerView =  new ProductDetailAdapterRecyclerView(productDetails, R.layout.cardview_product_detail, activity,store_id,audit_id);
+        productAdapterRecyclerView =  new ProductAdapterRecyclerView(products, R.layout.cardview_product, activity,store_id,audit_id);
         productRecyclerView.setAdapter(productAdapterRecyclerView);
 
-        int total               = productDetails.size();
+        int total               = products.size();
         int productsAudits   = 0;
 
-        for(ProductDetail p: productDetails){
+        for(Product p: products){
             if(p.getStatus()==1) productsAudits ++;
         }
 
         tvTotal.setText(String.valueOf(productsAudits) + " de " + String.valueOf(total));
-        if(productDetails.size() == 0) {
+        if(products.size() == 0) {
             btSave.setVisibility(View.INVISIBLE);
         }
         btSave.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +131,7 @@ public class ProductPriceActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
 
 
-                        new savePoll().execute();
+                         new savePoll().execute();
                         dialog.dismiss();
 
                     }
@@ -151,11 +150,11 @@ public class ProductPriceActivity extends AppCompatActivity {
 
     }
 
-    private ArrayList<ProductDetail> filter(ArrayList<ProductDetail> models, String query) {
+    private ArrayList<Product> filter(ArrayList<Product> models, String query) {
 
         query = query.toLowerCase();
-        final ArrayList<ProductDetail> filteredModelList = new ArrayList<>();
-        for (ProductDetail s : models) {
+        final ArrayList<Product> filteredModelList = new ArrayList<>();
+        for (Product s : models) {
             final String fullName = s.getFullname().toLowerCase().trim();
             if (fullName.contains(query) ) {
                 filteredModelList.add(s);
@@ -189,7 +188,7 @@ public class ProductPriceActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
 
                 //storeAdapterRecyclerView.getFilter().filter(newText.toString());
-                final ArrayList<ProductDetail> filteredMStoreList = filter(productDetails, newText);
+                final ArrayList<Product> filteredMStoreList = filter(products, newText);
                 //adapter.setFilter(filteredModelList);
                 productAdapterRecyclerView.setFilter(filteredMStoreList);
                 return false;
@@ -204,7 +203,7 @@ public class ProductPriceActivity extends AppCompatActivity {
          * */
         @Override
         protected void onPreExecute() {
-            //tvCargando.setText("Cargando ProductDetail...");
+            //tvCargando.setText("Cargando Product...");
             pDialog = new ProgressDialog(activity);
             pDialog.setMessage(getString(R.string.text_loading));
             pDialog.setIndeterminate(false);
@@ -225,7 +224,7 @@ public class ProductPriceActivity extends AppCompatActivity {
          * After completing background task Dismiss the progress dialog
          * **/
         protected void onPostExecute(Boolean result) {
-            // dismiss the dialog once productDetail deleted
+            // dismiss the dialog once product deleted
 
             if (result){
 
@@ -265,7 +264,7 @@ public class ProductPriceActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if(productDetails.size() == 0 ) {
+        if(products.size() == 0 ) {
             super.onBackPressed ();
         } else {
             alertDialogBasico(getString(R.string.message_save_audit_products));

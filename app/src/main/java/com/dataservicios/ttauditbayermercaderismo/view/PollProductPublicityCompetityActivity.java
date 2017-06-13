@@ -33,14 +33,16 @@ import com.dataservicios.ttauditbayermercaderismo.model.Media;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.PollDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.PollOption;
-import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
+import com.dataservicios.ttauditbayermercaderismo.model.Product;
+import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollOptionRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollRepo;
-import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
@@ -50,12 +52,12 @@ import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class PollProductActivity extends AppCompatActivity {
+public class PollProductPublicityCompetityActivity extends AppCompatActivity {
     private static final String LOG_TAG = StoreAuditActivity.class.getSimpleName();
     private SessionManager          session;
     private Activity                activity =  this;
     private ProgressDialog          pDialog;
-    private TextView                tvStoreFullName,tvStoreId,tvAddress ,tvReferencia,tvDistrict,tvAuditoria,tvPoll,tvProduct ;
+    private TextView                tvStoreFullName,tvStoreId,tvAddress ,tvReferencia,tvDistrict,tvAuditoria,tvPoll,tvPublicity,tvProduct ;
     private EditText                etComent;
     private EditText                etCommentOption;
     private Button                  btSaveGeo;
@@ -68,7 +70,7 @@ public class PollProductActivity extends AppCompatActivity {
     private LinearLayout            lyComment;
     private LinearLayout            lyOptions;
     private LinearLayout            lyOptionComment;
-    private LinearLayout            lyProduct;
+    private LinearLayout            lyPublicity;
     private int                     user_id;
     private int                     store_id;
     private int                     audit_id;
@@ -81,22 +83,23 @@ public class PollProductActivity extends AppCompatActivity {
     private Store                   store ;
     private Poll                    poll;
     private PollOption              pollOption;
+    private Product                 product;
     private PollDetail              pollDetail;
-    private ProductDetail           productDetail;
+    private Publicity               publicity;
     private RouteRepo               routeRepo ;
     private AuditRoadStoreRepo      auditRoadStoreRepo ;
     private StoreRepo               storeRepo ;
     private CompanyRepo             companyRepo ;
+    private ProductRepo             productRepo;
     private PollRepo                pollRepo ;
     private AuditRoadStore          auditRoadStore;
     private PollOptionRepo          pollOptionRepo;
-    private ProductDetailRepo productDetailRepo;
+    private PublicityRepo           publicityRepo;
     private GPSTracker              gpsTracker;
     private int                     isYesNo;
     private String                  comment;
     private String                  selectedOptions;
     private String                  commentOptions;
-
 
     /**
      * Inicia una nueva instancia de la actividad
@@ -120,7 +123,7 @@ public class PollProductActivity extends AppCompatActivity {
      * @return retorna un Intent listo para usar
      */
     private static Intent getLaunchIntent(Context context, int store_id, int audit_id, Poll poll) {
-        Intent intent = new Intent(context, PollProductActivity.class);
+        Intent intent = new Intent(context, PollProductPublicityCompetityActivity.class);
         intent.putExtra("store_id"              , store_id);
         intent.putExtra("audit_id"              , audit_id);
         intent.putExtra("orderPoll"             , poll.getOrder());
@@ -129,12 +132,11 @@ public class PollProductActivity extends AppCompatActivity {
         intent.putExtra("product_id"            , poll.getProduct_id());
         return intent;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_poll_product);
-
-
+        setContentView(R.layout.activity_poll_product_publicity_competity);
         tvStoreFullName     = (TextView)    findViewById(R.id.tvStoreFullName) ;
         tvStoreId           = (TextView)    findViewById(R.id.tvStoreId) ;
         tvAddress           = (TextView)    findViewById(R.id.tvAddress) ;
@@ -142,6 +144,7 @@ public class PollProductActivity extends AppCompatActivity {
         tvDistrict          = (TextView)    findViewById(R.id.tvDistrict) ;
         tvAuditoria         = (TextView)    findViewById(R.id.tvAuditoria) ;
         tvPoll              = (TextView)    findViewById(R.id.tvPoll) ;
+        tvPublicity         = (TextView)    findViewById(R.id.tvPublicity) ;
         tvProduct           = (TextView)    findViewById(R.id.tvProduct) ;
         btSaveGeo           = (Button)      findViewById(R.id.btSaveGeo);
         btSave              = (Button)      findViewById(R.id.btSave);
@@ -150,7 +153,7 @@ public class PollProductActivity extends AppCompatActivity {
         lyComment           = (LinearLayout)findViewById(R.id.lyComment);
         lyOptions           = (LinearLayout)findViewById(R.id.lyOptions);
         lyOptionComment     = (LinearLayout)findViewById(R.id.lyOptionComment);
-        lyProduct         = (LinearLayout) findViewById(R.id.lyProduct);
+        lyPublicity         = (LinearLayout) findViewById(R.id.lyPublicity);
 
         DatabaseManager.init(this);
 
@@ -177,7 +180,8 @@ public class PollProductActivity extends AppCompatActivity {
         auditRoadStoreRepo  = new AuditRoadStoreRepo(activity);
         pollRepo            = new PollRepo(activity);
         pollOptionRepo      = new PollOptionRepo((activity));
-        productDetailRepo   = new ProductDetailRepo(activity);
+        publicityRepo       = new PublicityRepo(activity);
+        productRepo         = new ProductRepo(activity);
 
         etCommentOption     = new EditText(activity);
         etComent            = new EditText(activity);
@@ -191,13 +195,16 @@ public class PollProductActivity extends AppCompatActivity {
         route               = (Route)           routeRepo.findById(store.getRoute_id());
         auditRoadStore      = (AuditRoadStore)  auditRoadStoreRepo.findByStoreIdAndAuditId(store_id,audit_id);
         poll                = (Poll)            pollRepo.findByCompanyAuditIdAndOrder(auditRoadStore.getList().getCompany_audit_id(),orderPoll);
-        productDetail       = (ProductDetail)         productDetailRepo.findByProductIdAndType(product_id, store.getType());
+        publicity           = (Publicity)       publicityRepo.findById(publicity_id);
+        product             = (Product)         productRepo.findById(product_id);
 
         poll.setCategory_product_id(category_product_id);
         poll.setProduct_id(product_id);
         poll.setPublicity_id(publicity_id);
 
-        showToolbar(productDetail.getFullname(),false);
+
+        showToolbar(publicity.getFullname(),false);
+
         tvStoreFullName.setText(String.valueOf(store.getFullname()));
         tvStoreId.setText(String.valueOf(store.getId()));
         tvAddress.setText(String.valueOf(store.getAddress()));
@@ -205,13 +212,19 @@ public class PollProductActivity extends AppCompatActivity {
         tvDistrict.setText(String.valueOf(store.getDistrict()));
         tvAuditoria.setText(auditRoadStore.getList().getFullname().toString());
         tvPoll.setText(poll.getQuestion().toString());
+        tvProduct.setText(product.getFullname());
 
-        if(productDetail != null) {
-            tvProduct.setText(productDetail.getFullname().toString() + " ("+ productDetail.getProduct_id() + ") ");
+
+        if(publicity != null) {
+            tvPublicity.setText(publicity.getFullname().toString() + " ("+ publicity.getId() + ") ");
         } else{
-            lyProduct.removeAllViews();
+            lyPublicity.removeAllViews();
         }
+
+
+
         establishigPropertyPool(orderPoll);
+
         btPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,6 +234,7 @@ public class PollProductActivity extends AppCompatActivity {
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle(R.string.message_save);
                 builder.setMessage(R.string.message_save_information);
@@ -291,6 +305,7 @@ public class PollProductActivity extends AppCompatActivity {
         media.setStore_id(store_id);
         media.setPoll_id(poll.getId());
         media.setCompany_id(company_id);
+        media.setPublicity_id(publicity_id);
         media.setProduct_id(product_id);
         media.setType(1);
         AndroidCustomGalleryActivity.createInstance((Activity) activity, media);
@@ -327,7 +342,7 @@ public class PollProductActivity extends AppCompatActivity {
          * After completing background task Dismiss the progress dialog
          * **/
         protected void onPostExecute(Boolean result) {
-            // dismiss the dialog once productDetail deleted
+            // dismiss the dialog once product deleted
 
             if (result){
                 resulProcess(orderPoll);
@@ -359,7 +374,7 @@ public class PollProductActivity extends AppCompatActivity {
         pollDetail.setAuditor(user_id);
         pollDetail.setProduct_id(poll.getProduct_id());
         pollDetail.setCategory_product_id(poll.getCategory_product_id());
-        pollDetail.setProduct_id(poll.getProduct_id());
+        pollDetail.setPublicity_id(poll.getPublicity_id());
         pollDetail.setCompany_id(company_id);
         pollDetail.setCommentOptions(poll.getComment());
         pollDetail.setSelectdOptions(selectedOptions);
@@ -367,10 +382,10 @@ public class PollProductActivity extends AppCompatActivity {
         pollDetail.setPriority(0);
 
         switch (orderPoll) {
-//            case 10:
-//                if (!AuditUtil.insertPollDetail(pollDetail)) return false;
-//                //if (!AuditUtil.closeAuditStore(audit_id, store_id, company_id, route.getId())) return false;
-//                break;
+            case 9:
+                if (!AuditUtil.insertPollDetail(pollDetail)) return false;
+                break;
+
             default:
                 if (!AuditUtil.insertPollDetail(pollDetail)) return false;
                 break;
@@ -383,21 +398,15 @@ public class PollProductActivity extends AppCompatActivity {
      * @param orderPoll
      */
     private void resulProcess (int orderPoll) {
-        switch (orderPoll) {
 
-            case 10:
-                poll.setOrder(11);
-                PollProductActivity.createInstance(activity, store_id,audit_id,poll);
-                finish();
-                break;
-            case 11:
-                //poll.setOrder(7);
-                //PollProductActivity.createInstance(activity, store_id,audit_id,poll);
-                productDetail.setStatus(1);
-                productDetailRepo.update(productDetail);
+        switch (orderPoll) {
+            case 9:
+                publicity.setStatus(1);
+                publicityRepo.update(publicity);
                 finish();
                 break;
         }
+
     }
 
     /**
@@ -407,27 +416,13 @@ public class PollProductActivity extends AppCompatActivity {
 
         if(poll.getMedia() == 1)  btPhoto.setVisibility(View.VISIBLE); else btPhoto.setVisibility(View.INVISIBLE);
         if(poll.getComment() == 1) showCommentControl(true); else showCommentControl(false);
-        if(poll.getSino() == 1) showSwichControl(true); else showSwichControl(false);
 
         switch (orderPoll) {
-            case 6: case 7:
-                showPollOptionsControl(true);
-                swYesNo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if(isChecked) showPollOptionsControl(false); else showPollOptionsControl(true);
-                    }
-                });
+
+            case 9:
+
                 break;
-            case 8:
-                showPollOptionsControl(true);
-                swYesNo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if(isChecked) showPollOptionsControl(true); else showPollOptionsControl(false);
-                    }
-                });
-                break;
+
         }
     }
 
@@ -455,14 +450,6 @@ public class PollProductActivity extends AppCompatActivity {
         }
     }
 
-    private void showSwichControl(boolean visibility) {
-        if(visibility){
-            swYesNo.setVisibility(View.VISIBLE);
-
-        } else {
-            swYesNo.setVisibility(View.INVISIBLE);
-        }
-    }
 
     /**
      * Muestra las opciones de un Poll siempre y cuando tenga option
@@ -552,4 +539,6 @@ public class PollProductActivity extends AppCompatActivity {
         builder.show();
 
     }
+
+
 }

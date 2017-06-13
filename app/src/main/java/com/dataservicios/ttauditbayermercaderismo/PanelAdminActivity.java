@@ -34,21 +34,22 @@ import com.dataservicios.ttauditbayermercaderismo.adapter.NavDrawerListAdapter;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.NavDrawerItem;
-import com.dataservicios.ttauditbayermercaderismo.model.Poll;
+import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
 import com.dataservicios.ttauditbayermercaderismo.model.User;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.MediaRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollOptionRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.PublicityHistoryRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.UserRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.BitmapLoader;
 import com.dataservicios.ttauditbayermercaderismo.util.GPSTracker;
 import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
 import com.dataservicios.ttauditbayermercaderismo.util.SyncData;
-import com.dataservicios.ttauditbayermercaderismo.util.SyncDataLoad;
 import com.dataservicios.ttauditbayermercaderismo.view.fragment.MediasFragment;
 import com.dataservicios.ttauditbayermercaderismo.view.fragment.RouteFragment;
 import com.squareup.picasso.Picasso;
@@ -79,10 +80,12 @@ public class PanelAdminActivity extends AppCompatActivity {
     private UserRepo                    userRepo;
     private CompanyRepo                 companyRepo;
     private PublicityRepo               publicityRepo;
-    private ProductRepo                 productRepo;
+    private PublicityHistoryRepo        publicityHistoryRepo;
+    private ProductDetailRepo           productDetailRepo;
     private PollRepo                    pollRepo;
     private PollOptionRepo              pollOptionRepo;
     private AuditRepo                   auditRepo;
+    private ProductRepo                 productRepo;
     private User                        user;
     private Fragment                    fragment;
     private File                        filePath;
@@ -113,13 +116,15 @@ public class PanelAdminActivity extends AppCompatActivity {
 
 
         DatabaseManager.init(activity);
-        userRepo        = new UserRepo(activity);
-        companyRepo     = new CompanyRepo(activity);
-        publicityRepo   = new PublicityRepo(activity);
-        productRepo     = new ProductRepo(activity);
-        pollRepo        = new PollRepo(activity);
-        pollOptionRepo  = new PollOptionRepo(activity);
-        auditRepo       = new AuditRepo(activity);
+        userRepo            = new UserRepo(activity);
+        companyRepo         = new CompanyRepo(activity);
+        publicityRepo       = new PublicityRepo(activity);
+        publicityHistoryRepo= new PublicityHistoryRepo(activity);
+        productDetailRepo   = new ProductDetailRepo(activity);
+        pollRepo            = new PollRepo(activity);
+        pollOptionRepo      = new PollOptionRepo(activity);
+        auditRepo           = new AuditRepo(activity);
+        productRepo         = new ProductRepo(activity);
 
         Company company = (Company) companyRepo.findFirstReg();
 
@@ -450,10 +455,12 @@ public class PanelAdminActivity extends AppCompatActivity {
 
                         companyRepo.deleteAll();
                         publicityRepo.deleteAll();
-                        productRepo.deleteAll();
+                        publicityHistoryRepo.deleteAll();
+                        productDetailRepo.deleteAll();
                         pollRepo.deleteAll();
                         pollOptionRepo.deleteAll();
                         auditRepo.deleteAll();
+                        productRepo.deleteAll();
 
                         Intent intent = new Intent(activity,MainActivity.class);
                         startActivity(intent);

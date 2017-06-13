@@ -4,19 +4,19 @@ import android.content.Context;
 
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseHelper;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
-import com.dataservicios.ttauditbayermercaderismo.model.Product;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 
 import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Created by jcdia on 7/06/2017.
+ * Created by jcdia on 6/06/2017.
  */
 
-public class ProductRepo implements Crud {
+public class ProductDetailRepo implements Crud {
     private DatabaseHelper helper;
 
-    public ProductRepo(Context context) {
+    public ProductDetailRepo(Context context) {
 
         DatabaseManager.init(context);
         helper = DatabaseManager.getInstance().getHelper();
@@ -25,9 +25,9 @@ public class ProductRepo implements Crud {
     @Override
     public int create(Object item) {
         int index = -1;
-        Product object = (Product) item;
+        ProductDetail object = (ProductDetail) item;
         try {
-            index = helper.getProductDao().create(object);
+            index = helper.getProductDetailDao().create(object);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -40,10 +40,10 @@ public class ProductRepo implements Crud {
 
         int index = -1;
 
-        Product object = (Product) item;
+        ProductDetail object = (ProductDetail) item;
 
         try {
-            helper.getProductDao().update(object);
+            helper.getProductDetailDao().update(object);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -57,10 +57,10 @@ public class ProductRepo implements Crud {
 
         int index = -1;
 
-        Product object = (Product) item;
+        ProductDetail object = (ProductDetail) item;
 
         try {
-            helper.getProductDao().delete(object);
+            helper.getProductDetailDao().delete(object);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -72,14 +72,14 @@ public class ProductRepo implements Crud {
     @Override
     public int deleteAll() {
 
-        List<Product> items = null;
+        List<ProductDetail> items = null;
         int counter = 0;
         try {
-            items = helper.getProductDao().queryForAll();
+            items = helper.getProductDetailDao().queryForAll();
 
-            for (Product object : items) {
+            for (ProductDetail object : items) {
                 // do something with object
-                helper.getProductDao().deleteById(object.getId());
+                helper.getProductDetailDao().deleteById(object.getId());
                 counter ++ ;
             }
 
@@ -93,9 +93,9 @@ public class ProductRepo implements Crud {
     @Override
     public Object findById(int id) {
 
-        Product wishList = null;
+        ProductDetail wishList = null;
         try {
-            wishList = helper.getProductDao().queryForId(id);
+            wishList = helper.getProductDetailDao().queryForId(id);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -106,10 +106,10 @@ public class ProductRepo implements Crud {
     @Override
     public List<?> findAll() {
 
-        List<Product> items = null;
+        List<ProductDetail> items = null;
 
         try {
-            items = helper.getProductDao().queryForAll();
+            items = helper.getProductDetailDao().queryForAll();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -123,7 +123,7 @@ public class ProductRepo implements Crud {
 
         Object wishList = null;
         try {
-            wishList = helper.getProductDao().queryBuilder().queryForFirst();
+            wishList = helper.getProductDetailDao().queryBuilder().queryForFirst();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -134,7 +134,7 @@ public class ProductRepo implements Crud {
     public long countReg() {
         long count = 0;
         try {
-            count = helper.getProductDao().countOf();
+            count = helper.getProductDetailDao().countOf();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -142,15 +142,15 @@ public class ProductRepo implements Crud {
     }
 
     /**
-     * Busca una lista de Product por su company_id
+     * Busca una lista de ProductDetail por su company_id
      * @param company_id
      * @return Retorna lista de Products
      */
-    public List<Product> findByCompanyId(int company_id) {
+    public List<ProductDetail> findByCompanyId(int company_id) {
 
-        List<Product> wishList = null;
+        List<ProductDetail> wishList = null;
         try {
-            wishList = helper.getProductDao().queryBuilder().where().eq("company_id",company_id).query();
+            wishList = helper.getProductDetailDao().queryBuilder().where().eq("company_id",company_id).query();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -158,20 +158,36 @@ public class ProductRepo implements Crud {
     }
 
     /**
-     * Busca una lista de Product por su type
-     * @param type tipo pe producto: Propio o competencia
+     * Busca una lista de ProductDetail por su type
+     * @param type tipo de tienda
      * @return Retorna lista de Products
      */
-    public List<Product> findByTypeCompetity(int type) {
+    public List<ProductDetail> findByStoreType(String type) {
 
-        List<Product> wishList = null;
+        List<ProductDetail> wishList = null;
         try {
-            wishList = helper.getProductDao().queryBuilder().where().eq("type",type).query();
+            wishList = helper.getProductDetailDao().queryBuilder().where().eq("type",type).query();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return wishList;
     }
 
+    /**
+     * Busca un producto por su product_id y el type de Store
+     * @param product_id
+     * @param type El tipo store CADENA, MINICADENA .....
+     * @return
+     */
+    public Object findByProductIdAndType(int product_id,String type) {
+
+        ProductDetail wishList = null;
+        try {
+            wishList =  helper.getProductDetailDao().queryBuilder().where().eq("product_id",product_id).and().eq("type",type).queryForFirst();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return wishList;
+    }
 
 }

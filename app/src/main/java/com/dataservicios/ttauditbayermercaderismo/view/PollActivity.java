@@ -292,7 +292,7 @@ public class PollActivity extends AppCompatActivity {
          * */
         @Override
         protected void onPreExecute() {
-            //tvCargando.setText("Cargando Product...");
+            //tvCargando.setText("Cargando ProductDetail...");
             pDialog = new ProgressDialog(activity);
             pDialog.setMessage(getString(R.string.text_loading));
             pDialog.setIndeterminate(false);
@@ -359,15 +359,17 @@ public class PollActivity extends AppCompatActivity {
                 } else if (isYesNo == 0) {
                     if (!AuditUtil.insertPollDetail(pollDetail)) return false;
                     if (!AuditUtil.closeAuditStore(audit_id, store_id, company_id, route.getId())) return false;
+                    if (!AuditUtil.closeAllAuditRoadStore(store_id, company_id)) return false;
                 }
                 break;
             case 2:
-//                if (isYesNo == 1) {
-//                    if (!AuditUtil.insertPollDetail(pollDetail)) return false;
-//                } else {
+                if (isYesNo == 1) {
                     if (!AuditUtil.insertPollDetail(pollDetail)) return false;
-                    if (!AuditUtil.closeAuditStore(audit_id, store_id, company_id, route.getId())) return false;
-
+                } else {
+                    if (!AuditUtil.insertPollDetail(pollDetail)) return false;
+                    if (!AuditUtil.closeAuditStore(audit_id, store_id, company_id, route.getId()))return false;
+                    if (!AuditUtil.closeAllAuditRoadStore(store_id, company_id)) return false;
+                }
 
                 break;
         }

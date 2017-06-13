@@ -201,7 +201,7 @@ public class PollPublicityActivity extends AppCompatActivity {
         poll.setPublicity_id(publicity_id);
 
 
-        showToolbar(publicity.getFullname(),false);
+        //showToolbar(publicity.getFullname(),false);
 
         tvStoreFullName.setText(String.valueOf(store.getFullname()));
         tvStoreId.setText(String.valueOf(store.getId()));
@@ -317,7 +317,7 @@ public class PollPublicityActivity extends AppCompatActivity {
          * */
         @Override
         protected void onPreExecute() {
-            //tvCargando.setText("Cargando Product...");
+            //tvCargando.setText("Cargando ProductDetail...");
             pDialog = new ProgressDialog(activity);
             pDialog.setMessage(getString(R.string.text_loading));
             pDialog.setIndeterminate(false);

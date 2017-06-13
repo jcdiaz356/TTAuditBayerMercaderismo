@@ -141,6 +141,20 @@ public class PublicityHistoryRepo implements Crud {
         return count;
     }
 
+    /**
+     * Busca una lista de PublicityHistory por su company_id
+     * @param company_id
+     * @return Retorna lista de Products
+     */
+    public List<PublicityHistory> findByCompanyId(int company_id) {
 
+        List<PublicityHistory> wishList = null;
+        try {
+            wishList = helper.getPublicityHistoryDao().queryBuilder().where().eq("company_id",company_id).query();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return wishList;
+    }
 
 }

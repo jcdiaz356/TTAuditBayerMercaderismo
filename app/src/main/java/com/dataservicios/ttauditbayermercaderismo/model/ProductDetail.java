@@ -3,40 +3,40 @@ package com.dataservicios.ttauditbayermercaderismo.model;
 import com.j256.ormlite.field.DatabaseField;
 
 /**
- * Created by jcdia on 7/06/2017.
+ * Created by jcdia on 6/06/2017.
  */
 
-public class Product {
-
-    @DatabaseField(id = true)
-    private int    id;
+public class ProductDetail {
+    @DatabaseField(generatedId = true)
+    private int     id;
     @DatabaseField
-    private String fullname;
+    private int     product_id;
     @DatabaseField
-    private int    company_id;
+    private int     company_id;
     @DatabaseField
-    private int    category_product_id;
+    private String  fullname;
     @DatabaseField
-    private String precio;
+    private int     category_product_id;
     @DatabaseField
-    private String imagen;
+    private String  precio;
     @DatabaseField
-    private String composicion;
+    private String  imagen;
     @DatabaseField
-    private String fabricante;
+    private String  composicion;
     @DatabaseField
-    private String presentacion;
+    private String  fabricante;
     @DatabaseField
-    private String unidad;
+    private String  presentacion;
     @DatabaseField
-    private int type;
+    private String  unidad;
     @DatabaseField
-    private int    status;
+    private String  type;
     @DatabaseField
-    private String created_at;
+    private int     status;
     @DatabaseField
-    private String updated_at;
-
+    private String  created_at;
+    @DatabaseField
+    private String  updated_at;
 
     public int getId() {
         return id;
@@ -44,6 +44,14 @@ public class Product {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getProduct_id() {
+        return product_id;
+    }
+
+    public void setProduct_id(int product_id) {
+        this.product_id = product_id;
     }
 
     public String getFullname() {
@@ -118,11 +126,11 @@ public class Product {
         this.unidad = unidad;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
     }
 

@@ -12,7 +12,9 @@ import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.PollDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.PollOption;
 import com.dataservicios.ttauditbayermercaderismo.model.Product;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
+import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.RouteStoreTime;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
@@ -288,6 +290,51 @@ public class AuditUtil {
     }
 
     /**
+     * Cierra todas las auditorias del Store
+     * @param store_id
+     * @param company_id
+     * @return
+     */
+    public static boolean closeAllAuditRoadStore(int store_id, int company_id) {
+        int success;
+        try {
+
+            HashMap<String, String> params = new HashMap<>();
+
+
+            params.put("store_id"               , String.valueOf(store_id));
+            params.put("company_id"             , String.valueOf(company_id));
+
+
+            JSONParserX jsonParser = new JSONParserX();
+            // getting product details by making HTTP request
+            //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/json/prueba.json" ,"POST", params);
+            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/admin_api/api_close_audit_road_stores.php" ,"POST", params);
+            // check your log for json response
+            Log.d("Login attempt", json.toString());
+            // json success, tag que retorna el json
+            if (json == null) {
+                Log.d("JSON result", "Está en nullo");
+                return false;
+            } else{
+                success = json.getInt("success");
+                if (success > 0) {
+                    Log.d(LOG_TAG, "Se insertó registro correctamente");
+                    return true ;
+                }else{
+                    Log.d(LOG_TAG, "no insertó registro");
+                    // return json.getString("message");
+                    return false;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Validate user and password for login
      * @param userName Nombre de Usuario
      * @param password Contraseña del usuario
@@ -331,6 +378,9 @@ public class AuditUtil {
         }
         return  user;
     }
+
+
+
 
     /**
      * Obtiene una lista de Rutas
@@ -522,10 +572,68 @@ public class AuditUtil {
         return  publicities;
     }
 
-    public static ArrayList<Product> getListProducts(int company_id){
+    public static ArrayList<PublicityHistory> getListPublicitiesHistory(int company_id){
         int success ;
 
-        ArrayList<Product> products= new ArrayList<Product>();
+        ArrayList<PublicityHistory> publicities= new ArrayList<PublicityHistory>();
+        try {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("company_id", String.valueOf(company_id));
+            JSONParserX jsonParser = new JSONParserX();
+            // getting product details by making HTTP request
+            //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/JsonRoadsDetail" ,"POST", params);
+            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/admin_api/api_publicity_history.php" ,"POST", params);
+            // check your log for json response
+            Log.d("Login attempt", json.toString());
+            // json success, tag que retorna el json
+            if (json == null) {
+                Log.d("JSON result", "Está en nullo");
+
+            } else{
+                success = json.getInt("success");
+                if (success > 0) {
+                    JSONArray ObjJson;
+                    ObjJson = json.getJSONArray("publicity");
+                    // looping through All Products
+                    if(ObjJson.length() > 0) {
+
+                        for (int i = 0; i < ObjJson.length(); i++) {
+                            JSONObject obj = ObjJson.getJSONObject(i);
+                            PublicityHistory publicityHistory = new PublicityHistory();
+                            publicityHistory.setId(obj.getInt("id"));
+                            publicityHistory.setCompany_id(obj.getInt("company_id"));
+                            publicityHistory.setCategory_product_id(1);
+                            if(obj.isNull("fullname")) publicityHistory.setFullname("");  else publicityHistory.setFullname(obj.getString("fullname"));;
+                            if(obj.isNull("description")) publicityHistory.setDescription("");  else publicityHistory.setDescription(obj.getString("description"));;
+                            if(obj.isNull("imagen")) publicityHistory.setImagen("/media/images/");  else publicityHistory.setImagen(GlobalConstant.dominio + "/media/fotos/" + obj.getString("imagen"));;
+                            publicityHistory.setCreated_at(obj.getString("created_at"));
+                            publicityHistory.setUpdated_at(obj.getString("updated_at"));
+                            publicities.add(i,publicityHistory);
+                        }
+
+                    }
+                    Log.d(LOG_TAG, "Ingresado correctamente");
+                }else{
+                    Log.d(LOG_TAG, "No se ingreso el registro");
+                    //return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // return false;
+        }
+        return  publicities;
+    }
+
+    /**
+     * Obtiene detalle de productos por tipo de tienda
+     * @param company_id
+     * @return
+     */
+    public static ArrayList<ProductDetail> getListProducts(int company_id){
+        int success ;
+
+        ArrayList<ProductDetail> productDetails = new ArrayList<ProductDetail>();
         try {
             HashMap<String, String> params = new HashMap<>();
             params.put("ajax", String.valueOf("1"));
@@ -535,6 +643,73 @@ public class AuditUtil {
             // getting product details by making HTTP request
             //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/JsonRoadsDetail" ,"POST", params);
             JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/ajaxGetProductsForCampaigneForType" ,"POST", params);
+            // check your log for json response
+            Log.d("Login attempt", json.toString());
+            // json success, tag que retorna el json
+            if (json == null) {
+                Log.d("JSON result", "Está en nullo");
+
+            } else{
+                success = json.getInt("success");
+                if (success > 0) {
+                    JSONArray ObjJson;
+                    ObjJson = json.getJSONArray("products");
+                    // looping through All Products
+                    if(ObjJson.length() > 0) {
+
+                        for (int i = 0; i < ObjJson.length(); i++) {
+                            JSONObject obj = ObjJson.getJSONObject(i);
+                            ProductDetail productDetail = new ProductDetail();
+
+                            productDetail.setProduct_id(obj.getInt("id"));
+                            productDetail.setCompany_id(obj.getInt("company_id"));
+                            productDetail.setCategory_product_id(1);
+                            if(obj.isNull("fullname")) productDetail.setFullname("");  else productDetail.setFullname(obj.getString("fullname"));
+                            if(obj.isNull("precio")) productDetail.setPrecio("");  else productDetail.setPrecio(obj.getString("precio"));
+                            if(obj.isNull("imagen")) productDetail.setImagen("/media/images/");  else productDetail.setImagen(GlobalConstant.dominio + "/media/images/" + obj.getString("imagen"));;
+                            if(obj.isNull("composicion")) productDetail.setComposicion("");  else productDetail.setComposicion(obj.getString("composicion"));
+                            if(obj.isNull("fabricante")) productDetail.setFabricante("");  else productDetail.setFabricante(obj.getString("fabricante"));
+                            if(obj.isNull("presentacion")) productDetail.setPresentacion("");  else productDetail.setPresentacion(obj.getString("presentacion"));
+                            if(obj.isNull("unidad")) productDetail.setUnidad("");  else productDetail.setUnidad(obj.getString("unidad"));
+                            if(obj.isNull("type")) productDetail.setType("");  else productDetail.setType(obj.getString("type"));
+                            productDetail.setCreated_at(obj.getString("created_at"));
+                            productDetail.setUpdated_at(obj.getString("updated_at"));
+                            productDetails.add(i, productDetail);
+                        }
+
+                    }
+                    Log.d(LOG_TAG, "Ingresado correctamente");
+                }else{
+                    Log.d(LOG_TAG, "No se ingreso el registro");
+                    //return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // return false;
+        }
+        return productDetails;
+    }
+
+    /**
+     * Obtien lista de productos segun un typo
+     * @param company_id
+     * @param type Tipo = 1 : competencias
+     * @return
+     */
+    public static ArrayList<Product> getListProductsCompetity(int company_id,int type){
+        int success ;
+
+        ArrayList<Product> productsCompetity = new ArrayList<Product>();
+        try {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("ajax", String.valueOf("1"));
+            params.put("company_id", String.valueOf(company_id));
+            params.put("competition", String.valueOf(type));
+            JSONParserX jsonParser = new JSONParserX();
+            // getting product details by making HTTP request
+            //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/JsonRoadsDetail" ,"POST", params);
+            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/ajaxGetProductsCompetition" ,"POST", params);
             // check your log for json response
             Log.d("Login attempt", json.toString());
             // json success, tag que retorna el json
@@ -563,10 +738,10 @@ public class AuditUtil {
                             if(obj.isNull("fabricante")) product.setFabricante("");  else product.setFabricante(obj.getString("fabricante"));
                             if(obj.isNull("presentacion")) product.setPresentacion("");  else product.setPresentacion(obj.getString("presentacion"));
                             if(obj.isNull("unidad")) product.setUnidad("");  else product.setUnidad(obj.getString("unidad"));
-                            if(obj.isNull("type")) product.setType("");  else product.setType(obj.getString("type"));
+                            product.setType(1);
                             product.setCreated_at(obj.getString("created_at"));
                             product.setUpdated_at(obj.getString("updated_at"));
-                            products.add(i,product);
+                            productsCompetity.add(i, product);
                         }
 
                     }
@@ -580,7 +755,7 @@ public class AuditUtil {
             e.printStackTrace();
             // return false;
         }
-        return  products;
+        return productsCompetity;
     }
 
     public static Company getCompany(int active,int visible,String app_id){
@@ -696,6 +871,12 @@ public class AuditUtil {
         return  audits;
     }
 
+    /**
+     * Obtiene una lista de todas las auditorias y las rutas de los stores
+     * @param company_id
+     * @param user_id
+     * @return
+     */
     public static ArrayList<AuditRoadStore> getAuditRoadStores(int company_id, int user_id){
         int success ;
 
@@ -746,6 +927,63 @@ public class AuditUtil {
         return  auditRoadsStores;
     }
 
+    /**
+     * Obtiene una unica Ruta con las auditorias y  stores
+     * @param company_id
+     * @param road_id
+     * @param store_id
+     * @return Retorna un Lista de  AuditRoadStore
+     */
+    public static ArrayList<AuditRoadStore> getAuditRoadStore(int company_id, int road_id, int store_id){
+        int success ;
+
+        ArrayList<AuditRoadStore> auditRoadsStores= new ArrayList<AuditRoadStore>();
+        try {
+            HashMap<String, String> params = new HashMap<>();
+            params.put("company_id", String.valueOf(company_id));
+            params.put("road_id", String.valueOf(road_id));
+            params.put("store_id", String.valueOf(store_id));
+            JSONParserX jsonParser = new JSONParserX();
+            // getting product details by making HTTP request
+            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/admin_api/api_audit_road_store.php" ,"POST", params);
+            // check your log for json response
+            Log.d("Login attempt", json.toString());
+            // json success, tag que retorna el json
+            if (json == null) {
+                Log.d("JSON result", "Está en nullo");
+
+            } else{
+                success = json.getInt("success");
+                if (success > 0) {
+                    JSONArray ObjJson;
+                    ObjJson = json.getJSONArray("audits");
+                    // looping through All Products
+                    if(ObjJson.length() > 0) {
+
+                        for (int i = 0; i < ObjJson.length(); i++) {
+                            JSONObject obj = ObjJson.getJSONObject(i);
+                            AuditRoadStore auditRoadStore = new AuditRoadStore();
+                            auditRoadStore.setId(obj.getInt("id"));
+                            auditRoadStore.setRoad_id(obj.getInt("road_id"));
+                            auditRoadStore.setAudit_id(obj.getInt("audit_id"));
+                            auditRoadStore.setStore_id(obj.getInt("store_id"));
+                            auditRoadStore.setAuditStatus(obj.getInt("audit"));
+
+                            auditRoadsStores.add(i,auditRoadStore);
+                        }
+                    }
+                    Log.d(LOG_TAG, "Ingresado correctamente");
+                }else{
+                    Log.d(LOG_TAG, "No se ingreso el registro");
+                    //return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // return false;
+        }
+        return  auditRoadsStores;
+    }
     /**
      * Obitne  todas las preguntas de un company_id
      * @param company_id
@@ -892,6 +1130,70 @@ public class AuditUtil {
                 }
             }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+//    $store_id = $valoresPost['store_id'];
+//    $user_id = $valoresPost['user_id'];
+//    $company_id = $valoresPost['company_id'];
+//    $direccion  = $valoresPost['direccion'];
+//    $referencia = $valoresPost['referencia'];
+//    $userName = $valoresPost['userName'];
+//    $storeName = Input::only('storeName');
+//    $comentario = Input::only('comentario');
+
+    /**
+     * Cambia la direción de un store
+     * @param store_id
+     * @param user_id
+     * @param company_id
+     * @param address
+     * @param reference
+     * @param userName
+     * @param storeName
+     * @param comment
+     * @return
+     */
+    public static boolean saveChangeAddressStore(int store_id, int user_id, int company_id, String address,String reference,String userName,String storeName, String comment ) {
+
+        int success;
+        try {
+
+            HashMap<String, String> params = new HashMap<>();
+
+            params.put("store_id"     ,String.valueOf(store_id));
+            params.put("user_id"      ,String.valueOf(user_id));
+            params.put("company_id"   ,String.valueOf(company_id));
+            params.put("direccion"      ,String.valueOf(address));
+            params.put("referencia"    ,String.valueOf(reference));
+            params.put("userName"     ,String.valueOf(userName));
+            params.put("storeName"    ,String.valueOf(storeName));
+            params.put("comentario"      ,String.valueOf(comment));
+
+            JSONParserX jsonParser = new JSONParserX();
+
+            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/changeAddressStore" ,"POST", params);
+            Log.d(LOG_TAG, json.toString());
+
+            // json success, tag que retorna el json
+
+            if (json == null) {
+                Log.d(LOG_TAG, "Está en nullo");
+                return false;
+            } else{
+                success = json.getInt("success");
+                if (success == 1) {
+                    Log.d(LOG_TAG, "Se insertó registro correctamente");
+                    return true;
+                }else{
+                    Log.d(LOG_TAG, "no insertó registro");
+                    return false;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return false;

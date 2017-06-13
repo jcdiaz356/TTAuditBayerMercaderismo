@@ -1,6 +1,8 @@
 package com.dataservicios.ttauditbayermercaderismo.adapter;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,25 +12,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dataservicios.ttauditbayermercaderismo.R;
-import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.Product;
-import com.dataservicios.ttauditbayermercaderismo.view.PollProductActivity;
+import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
+import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
+import com.dataservicios.ttauditbayermercaderismo.view.ProductPriceActivity;
+import com.dataservicios.ttauditbayermercaderismo.view.ProductPublicityCompetityActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 /**
- * Created by jcdia on 6/06/2017.
+ * Created by jcdia on 7/06/2017.
  */
 
 public class ProductAdapterRecyclerView extends RecyclerView.Adapter<ProductAdapterRecyclerView.ProductViewHolder> {
-    private ArrayList<Product>          products;
+    private ArrayList<Product> products;
     private int                         resource;
     private Activity                    activity;
     private int                         store_id;
     private int                         audit_id;
 
-    public ProductAdapterRecyclerView(ArrayList<Product> products, int resource, Activity activity,int store_id, int audit_id) {
+    public ProductAdapterRecyclerView(ArrayList<Product> products, int resource, Activity activity, int store_id, int audit_id) {
         this.products = products;
         this.resource       = resource;
         this.activity       = activity;
@@ -67,10 +71,24 @@ public class ProductAdapterRecyclerView extends RecyclerView.Adapter<ProductAdap
             @Override
             public void onClick(View v) {
 
-                Poll poll = new Poll();
-                poll.setProduct_id(product.getId());
-                poll.setOrder(10);
-                PollProductActivity.createInstance((Activity) activity, store_id,audit_id,poll);
+
+                PublicityRepo publicityRepo = new PublicityRepo(activity);
+                ArrayList<Publicity> publicities = (ArrayList<Publicity>) publicityRepo.findAll();
+
+                for (Publicity p: publicities){
+                    p.setStatus(0);
+                    publicityRepo.update(p);
+                }
+
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("store_id",store_id);
+                bundle.putInt("audit_id",audit_id);
+                bundle.putInt("product_id",product.getId());
+
+                Intent intent = new Intent(activity, ProductPublicityCompetityActivity.class);
+                intent.putExtras(bundle);
+                activity.startActivity(intent);
 
             }
         });
@@ -83,11 +101,11 @@ public class ProductAdapterRecyclerView extends RecyclerView.Adapter<ProductAdap
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView    tvFullName;
+        private TextView tvFullName;
         private TextView    tvUnidad;
         private TextView    tvComposicion;
-        private Button      btAudit;
-        private ImageView   imgPhoto;
+        private Button btAudit;
+        private ImageView imgPhoto;
         private ImageView   imgStatus;
 
         public ProductViewHolder(View itemView) {

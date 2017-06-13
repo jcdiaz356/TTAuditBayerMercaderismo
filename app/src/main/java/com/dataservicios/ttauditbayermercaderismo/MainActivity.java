@@ -23,12 +23,14 @@ import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.PollOption;
 import com.dataservicios.ttauditbayermercaderismo.model.Product;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollOptionRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityHistoryRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
@@ -72,23 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadLoginActivity() {
 
-        PublicityHistoryRepo publicityHistoryRepo  = new PublicityHistoryRepo(activity);
-        publicityHistoryRepo.deleteAll();
 
-        for ( int i = 1; i <= 20; i ++ ) {
-            PublicityHistory publicitiesHistory = new PublicityHistory();
-            publicitiesHistory.setId(i);
-            publicitiesHistory.setCompany_id(1);
-            publicitiesHistory.setCategory_product_id(1);
-            publicitiesHistory.setStore_id(456);
-            publicitiesHistory.setCompany_name("Campaña 2 ");
-            publicitiesHistory.setFullname("Publicity Hist." + String.valueOf(i));
-            publicitiesHistory.setDescription("");
-            publicitiesHistory.setImagen("http://ttaudit.com/media/fotos/066660_75_alicorp_h_20170531_174323.jpg");
-            publicitiesHistory.setCreated_at("03/06/2017");
-            publicitiesHistory.setUpdated_at("03/06/2017");
-            publicityHistoryRepo.create(publicitiesHistory);
-        }
         new loadLogin().execute();
 
 
@@ -136,37 +122,87 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            publishProgress(activity.getString(R.string.text_download_audits));
+
             if( company.getId() != 0 ) {
 
-                audits = AuditUtil.getAudits(company.getId()) ;
-                if(audits  != null) {
-                    AuditRepo auditRepo  = new AuditRepo(activity);
+//                audits = AuditUtil.getAudits(company.getId()) ;
+//                if(audits  != null) {
+//                    AuditRepo auditRepo  = new AuditRepo(activity);
+//                    auditRepo.deleteAll();
+//                    for (Audit a: audits) {
+//                        auditRepo.create(a);
+//                    }
+//                } else {
+//                    Log.i(LOG_TAG, "No se pudo obtener auditorias");
+//                    return false;
+//                }
+
+                publishProgress(activity.getString(R.string.text_download_audits));
+                AuditRepo auditRepo= new AuditRepo(activity);
+                ArrayList<Audit> audits = (ArrayList<Audit>) auditRepo.findAll();
+                if(audits.size()==0){
                     auditRepo.deleteAll();
-                    for (Audit a: audits) {
-                        auditRepo.create(a);
+                    audits = AuditUtil.getAudits(company.getId());
+                    if(audits.size()!=0){
+                        for(Audit p: audits){
+                            auditRepo.create(p);
+                        }
+                    } else  {
+                        return  false;
                     }
-                } else {
-                    Log.i(LOG_TAG, "No se pudo obtener auditorias");
-                    return false;
                 }
+
+//                publishProgress(activity.getString(R.string.text_download_polls));
+//                polls = AuditUtil.getPolls(company.getId());
+//
+//                publishProgress(activity.getString(R.string.text_download_polls_otpions));
+//                pollOptions = AuditUtil.getPollOptions(company.getId());
+//
+//                PollRepo pollRepo = new PollRepo(activity);
+//                pollRepo.deleteAll();
+//                for (Poll p: polls) {
+//                    pollRepo.create(p);
+//                }
+
+//                PollOptionRepo  pollOptionRepo =  new PollOptionRepo(activity);
+//                pollOptionRepo.deleteAll();
+//                for(PollOption po: pollOptions) {
+//
+//                    pollOptionRepo.create(po);
+//                }
+
                 publishProgress(activity.getString(R.string.text_download_polls));
-                polls = AuditUtil.getPolls(company.getId());
+                PollRepo pollRepo= new PollRepo(activity);
+                ArrayList<Poll> polls = (ArrayList<Poll>) pollRepo.findAll();
+                if(polls.size()==0){
+                    pollRepo.deleteAll();
+                    polls = AuditUtil.getPolls(company.getId());
+                    if(polls.size()!=0){
+                        for(Poll p: polls){
+                            pollRepo.create(p);
+                        }
+                    } else  {
+                        return  false;
+                    }
+                }
+
 
                 publishProgress(activity.getString(R.string.text_download_polls_otpions));
-                pollOptions = AuditUtil.getPollOptions(company.getId());
-
-                PollRepo pollRepo = new PollRepo(activity);
-                pollRepo.deleteAll();
-                for (Poll p: polls) {
-                    pollRepo.create(p);
+                PollOptionRepo pollOptionRepo= new PollOptionRepo(activity);
+                ArrayList<PollOption> pollOptions = (ArrayList<PollOption>) pollOptionRepo.findAll();
+                if(pollOptions.size()==0){
+                    pollOptionRepo.deleteAll();
+                    pollOptions = AuditUtil.getPollOptions(company.getId());
+                    if(pollOptions.size()!=0){
+                        for(PollOption p: pollOptions){
+                            pollOptionRepo.create(p);
+                        }
+                    } else  {
+                        return  false;
+                    }
                 }
-                PollOptionRepo  pollOptionRepo =  new PollOptionRepo(activity);
-                pollOptionRepo.deleteAll();
-                for(PollOption po: pollOptions) {
 
-                    pollOptionRepo.create(po);
-                }
+
 
                 publishProgress(activity.getString(R.string.text_download_publicity));
                 PublicityRepo publictyRepo= new PublicityRepo(activity);
@@ -183,13 +219,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                publishProgress(activity.getString(R.string.text_download_products));
+                publishProgress(activity.getString(R.string.text_download_products_detail));
+                ProductDetailRepo productDetailRepo = new ProductDetailRepo(activity);
+                ArrayList<ProductDetail> productDetails = (ArrayList<ProductDetail>) productDetailRepo.findByCompanyId(company.getId());
+
+                if(productDetails.size()==0){
+                    productDetailRepo.deleteAll();
+                    productDetails = AuditUtil.getListProducts(company.getId());
+                    if(productDetails.size()!=0){
+                        for(ProductDetail p: productDetails){
+                            productDetailRepo.create(p);
+                        }
+                    } else  {
+                        return  false;
+                    }
+                }
+
+                publishProgress(activity.getString(R.string.text_download_products_competity));
                 ProductRepo productRepo = new ProductRepo(activity);
                 ArrayList<Product> products = (ArrayList<Product>) productRepo.findByCompanyId(company.getId());
 
                 if(products.size()==0){
                     productRepo.deleteAll();
-                    products = AuditUtil.getListProducts(company.getId());
+                    products = AuditUtil.getListProductsCompetity(company.getId(),1);
                     if(products.size()!=0){
                         for(Product p: products){
                             productRepo.create(p);
@@ -199,8 +251,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+
+
+
+                publishProgress(activity.getString(R.string.text_download_publicity_history));
+                PublicityHistoryRepo publicityHistoryRepo = new PublicityHistoryRepo(activity);
+                ArrayList<PublicityHistory> publicityHistories = (ArrayList<PublicityHistory>) publicityHistoryRepo.findAll();
+
+                if(publicityHistories.size()==0){
+                    productRepo.deleteAll();
+                    publicityHistories = AuditUtil.getListPublicitiesHistory(company.getId());
+                    if(publicityHistories.size()!=0){
+                        for(PublicityHistory p: publicityHistories){
+                            publicityHistoryRepo.create(p);
+                        }
+                    } else  {
+                        return  false;
+                    }
+                }
+
+
+                ArrayList<PublicityHistory> publicityHistories1 = (ArrayList<PublicityHistory>) publicityHistoryRepo.findAll();
                 ArrayList<Product> products1 = (ArrayList<Product>) productRepo.findByCompanyId(company.getId());
-                ArrayList<Publicity> publicities1= (ArrayList<Publicity>) publictyRepo.findByCompanyId(company.getId());
+
             }
 
 

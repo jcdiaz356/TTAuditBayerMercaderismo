@@ -55,7 +55,6 @@
             android:label="@string/title_activity_panel_admin"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-        <activity android:name=".view.PruebaActivity" />
         <activity
             android:name=".view.StoresActivity"
             android:launchMode="singleTop"
@@ -106,18 +105,15 @@
         <activity
             android:name=".view.PublicityHistoryPhotoActivity"
             android:screenOrientation="portrait" />
-
         <activity android:name=".view.fragment.PublicityCompetitionActivity" />
         <activity
             android:name=".view.ProductPriceActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.StoreAuditActivity" />
         </activity>
-
         <activity
             android:name=".view.PollProductActivity"
             android:screenOrientation="portrait">
@@ -125,7 +121,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.PublicitiesActivity" />
         </activity>
-
+        <activity android:name=".view.ProductCompetityActivity" />
+        <activity android:name=".view.ProductPublicityCompetityActivity" />
+        <activity android:name=".view.PollProductPublicityCompetityActivity" />
+        <activity
+            android:name=".view.EditStoreActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.StoreAuditActivity" />
+        </activity>
         <activity
             android:name=".view.AndroidCustomGalleryActivity"
             android:screenOrientation="portrait" />
