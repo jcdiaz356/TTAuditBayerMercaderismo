@@ -35,8 +35,10 @@ import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.NavDrawerItem;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
+import com.dataservicios.ttauditbayermercaderismo.model.StockProductPop;
 import com.dataservicios.ttauditbayermercaderismo.model.User;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.CategoryProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.MediaRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollOptionRepo;
@@ -45,6 +47,7 @@ import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityHistoryRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StockProductPopRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.UserRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.BitmapLoader;
 import com.dataservicios.ttauditbayermercaderismo.util.GPSTracker;
@@ -86,6 +89,8 @@ public class PanelAdminActivity extends AppCompatActivity {
     private PollOptionRepo              pollOptionRepo;
     private AuditRepo                   auditRepo;
     private ProductRepo                 productRepo;
+    private CategoryProductRepo         categoryProductRepo;
+    private StockProductPopRepo         stockProductPopRepo;
     private User                        user;
     private Fragment                    fragment;
     private File                        filePath;
@@ -125,6 +130,8 @@ public class PanelAdminActivity extends AppCompatActivity {
         pollOptionRepo      = new PollOptionRepo(activity);
         auditRepo           = new AuditRepo(activity);
         productRepo         = new ProductRepo(activity);
+        categoryProductRepo = new CategoryProductRepo(activity);
+        stockProductPopRepo = new StockProductPopRepo(activity);
 
         Company company = (Company) companyRepo.findFirstReg();
 
@@ -461,6 +468,8 @@ public class PanelAdminActivity extends AppCompatActivity {
                         pollOptionRepo.deleteAll();
                         auditRepo.deleteAll();
                         productRepo.deleteAll();
+                        categoryProductRepo.deleteAll();
+                        stockProductPopRepo.deleteAll();
 
                         Intent intent = new Intent(activity,MainActivity.class);
                         startActivity(intent);

@@ -174,6 +174,23 @@ public class ProductDetailRepo implements Crud {
     }
 
     /**
+     * Obtien los productos por tipo de tienda y categoria
+     * @param type
+     * @param category_product_id
+     * @return
+     */
+    public List<ProductDetail> findByStoreTypeAndCategoryProductId(String type, int category_product_id) {
+
+        List<ProductDetail> wishList = null;
+        try {
+            wishList = helper.getProductDetailDao().queryBuilder().where().eq("type",type).and().eq("category_product_id",category_product_id).query();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return wishList;
+    }
+
+    /**
      * Busca un producto por su product_id y el type de Store
      * @param product_id
      * @param type El tipo store CADENA, MINICADENA .....

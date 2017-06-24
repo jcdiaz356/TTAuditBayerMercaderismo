@@ -51,7 +51,7 @@ public class PollActivity extends AppCompatActivity {
     private SessionManager          session;
     private Activity                activity =  this;
     private ProgressDialog          pDialog;
-    private TextView                tvStoreFullName,tvStoreId,tvAddress ,tvReferencia,tvDistrict,tvAuditoria,tvPoll ;
+    private TextView                tvStoreFullName,tvStoreId,tvAddress ,tvReferencia,tvDistrict,tvAuditoria,tvPoll, tvType ;
     private EditText                etComent;
     private EditText                etCommentOption;
     private Button                  btSaveGeo;
@@ -127,7 +127,7 @@ public class PollActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poll);
 
-        showToolbar(getString(R.string.title_activity_Stores_Audit),true);
+
 
         DatabaseManager.init(this);
 
@@ -170,6 +170,7 @@ public class PollActivity extends AppCompatActivity {
         tvDistrict          = (TextView)    findViewById(R.id.tvDistrict) ;
         tvAuditoria         = (TextView)    findViewById(R.id.tvAuditoria) ;
         tvPoll              = (TextView)    findViewById(R.id.tvPoll) ;
+        tvType              = (TextView)    findViewById(R.id.tvType) ;
         btSaveGeo           = (Button)      findViewById(R.id.btSaveGeo);
         btSave              = (Button)      findViewById(R.id.btSave);
         btPhoto             = (ImageButton) findViewById(R.id.btPhoto);
@@ -187,6 +188,8 @@ public class PollActivity extends AppCompatActivity {
         poll.setProduct_id(product_id);
         poll.setPublicity_id(publicity_id);
 
+
+
         tvStoreFullName.setText(String.valueOf(store.getFullname()));
         tvStoreId.setText(String.valueOf(store.getId()));
         tvAddress.setText(String.valueOf(store.getAddress()));
@@ -194,7 +197,10 @@ public class PollActivity extends AppCompatActivity {
         tvDistrict.setText(String.valueOf(store.getDistrict()));
         tvAuditoria.setText(auditRoadStore.getList().getFullname().toString());
         tvPoll.setText(poll.getQuestion().toString());
+        tvType.setText(String.valueOf(store.getType()) + " (" + store.getCadenRuc() + ")");
 
+
+        showToolbar(auditRoadStore.getList().getFullname().toString(),true);
 
         establishigPropertyPool(orderPoll);
 
@@ -278,6 +284,7 @@ public class PollActivity extends AppCompatActivity {
         media.setStore_id(store_id);
         media.setPoll_id(poll.getId());
         media.setCompany_id(company_id);
+        media.setVisit_id(store.getVisit_id());
         media.setType(1);
         AndroidCustomGalleryActivity.createInstance((Activity) activity, media);
     }
@@ -349,6 +356,7 @@ public class PollActivity extends AppCompatActivity {
         pollDetail.setCompany_id(company_id);
         pollDetail.setCommentOptions(poll.getComment());
         pollDetail.setSelectdOptions(selectedOptions);
+        pollDetail.setVisit_id(store.getVisit_id());
         pollDetail.setSelectedOtionsComment(commentOptions);
         pollDetail.setPriority(0);
 

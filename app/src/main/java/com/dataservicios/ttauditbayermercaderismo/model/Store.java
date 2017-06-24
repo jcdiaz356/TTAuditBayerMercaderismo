@@ -13,6 +13,8 @@ public class Store {
     @DatabaseField
     private int          route_id;
     @DatabaseField
+    private int          visit_id;
+    @DatabaseField
     private String       cadenRuc;
     @DatabaseField
     private String       codCliente;
@@ -51,6 +53,8 @@ public class Store {
     @DatabaseField
     private int          status;
     @DatabaseField
+    private int          status_change;
+    @DatabaseField
     private String       comment;
 
 
@@ -68,6 +72,14 @@ public class Store {
 
     public void setRoute_id(int route_id) {
         this.route_id = route_id;
+    }
+
+    public int getVisit_id() {
+        return visit_id;
+    }
+
+    public void setVisit_id(int visit_id) {
+        this.visit_id = visit_id;
     }
 
     public String getCadenRuc() {
@@ -220,6 +232,14 @@ public class Store {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public int getStatus_change() {
+        return status_change;
+    }
+
+    public void setStatus_change(int status_change) {
+        this.status_change = status_change;
     }
 
     public String getComment() {

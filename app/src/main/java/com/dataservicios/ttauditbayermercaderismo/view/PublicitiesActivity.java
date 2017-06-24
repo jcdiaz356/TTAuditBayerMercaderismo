@@ -23,9 +23,11 @@ import com.dataservicios.ttauditbayermercaderismo.model.Audit;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
+import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityHistoryRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
 
 import java.util.ArrayList;
@@ -44,12 +46,14 @@ public class PublicitiesActivity extends AppCompatActivity {
     private PublicityRepo                           publicityRepo ;
     private PublicityHistoryRepo                    publicityHistoryRepo;
     private AuditRepo                               auditRepo ;
+    private StoreRepo                               storeRepo;
     private PublicityAdapterReciclerView            publicityAdapterReciclerView;
     private PublicityHistoryAdapterReciclerView     publicityHistoryAdapterReciclerView;
     private RecyclerView                            publicityRecyclerView;
     private RecyclerView                            publicityHistoryRecyclerView;
     private Publicity                               publicity ;
     private Audit                                   audit ;
+    private Store                                   store;
     private PublicityHistory                        publicityHistory;
     private ArrayList<Publicity>                    publicities;
     private ArrayList<PublicityHistory>             publicitiesHistory;
@@ -69,6 +73,7 @@ public class PublicitiesActivity extends AppCompatActivity {
         publicityRepo           = new PublicityRepo(activity);
         auditRepo               = new AuditRepo(activity);
         publicityHistoryRepo    = new PublicityHistoryRepo(activity);
+        storeRepo               = new StoreRepo(activity);
 
         Bundle bundle = getIntent().getExtras();
         store_id = bundle.getInt("store_id");
@@ -80,6 +85,7 @@ public class PublicitiesActivity extends AppCompatActivity {
         user_id = Integer.valueOf(userSesion.get(SessionManager.KEY_ID_USER)) ;
 
         audit = (Audit) auditRepo.findById(audit_id);
+        store = (Store) storeRepo.findById(store_id);
         showToolbar(audit.getFullname().toString(),false);
 
 
@@ -137,13 +143,13 @@ public class PublicitiesActivity extends AppCompatActivity {
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Publicity p:publicities ){
-
-                    if(p.getStatus()==0){
-                        alertDialogBasico(getString(R.string.message_audit_material_pop) + ": \n " + p.getFullname().toString());
-                        return;
-                    }
-                }
+//                for (Publicity p:publicities ){
+//
+//                    if(p.getStatus()==0){
+//                        alertDialogBasico(getString(R.string.message_audit_material_pop) + ": \n " + p.getFullname().toString());
+//                        return;
+//                    }
+//                }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle(R.string.message_save);
@@ -153,11 +159,18 @@ public class PublicitiesActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        Poll poll = new Poll();
-                        poll.setPublicity_id(0);
-                        poll.setOrder(8);
-                        PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
-                        finish();
+
+
+                        if(store.getStatus_change() ==1) {
+                            finish();
+                        } else if(store.getStatus_change() == 0) {
+                            Poll poll = new Poll();
+                            poll.setPublicity_id(0);
+                            poll.setOrder(8);
+                            PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
+                            finish();
+                        }
+
                         dialog.dismiss();
 
                     }
@@ -213,25 +226,20 @@ public class PublicitiesActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
+//        if(publicities.size() == 0 ) {
+//            super.onBackPressed ();
+//        } else {
+//            for (Publicity p:publicities ){
+//
+//                if(p.getStatus()==0){
+//                    alertDialogBasico(getString(R.string.message_audit_material_pop) + ": \n " + p.getFullname().toString());
+//                    return;
+//                }
+//            }
+//            alertDialogBasico(getString(R.string.message_save_audit_material_pop));
+//        }
 
-
-        if(publicities.size() == 0 ) {
-            super.onBackPressed ();
-        } else {
-            for (Publicity p:publicities ){
-
-                if(p.getStatus()==0){
-                    alertDialogBasico(getString(R.string.message_audit_material_pop) + ": \n " + p.getFullname().toString());
-                    return;
-                }
-            }
-
-            alertDialogBasico(getString(R.string.message_save_audit_material_pop));
-        }
-
-
-        //
-
+        super.onBackPressed();
     }
 
 

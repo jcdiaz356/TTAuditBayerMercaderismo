@@ -19,6 +19,8 @@ public class Media {
     @DatabaseField
     private int product_id;
     @DatabaseField
+    private int visit_id;
+    @DatabaseField
     private int company_id;
     @DatabaseField
     private String monto ;
@@ -69,6 +71,14 @@ public class Media {
 
     public void setProduct_id(int product_id) {
         this.product_id = product_id;
+    }
+
+    public int getVisit_id() {
+        return visit_id;
+    }
+
+    public void setVisit_id(int visit_id) {
+        this.visit_id = visit_id;
     }
 
     public int getCategory_product_id() {

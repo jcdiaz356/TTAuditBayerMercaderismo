@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.dataservicios.ttauditbayermercaderismo.model.Audit;
 import com.dataservicios.ttauditbayermercaderismo.model.AuditRoadStore;
+import com.dataservicios.ttauditbayermercaderismo.model.CategoryProduct;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Departament;
 import com.dataservicios.ttauditbayermercaderismo.model.District;
@@ -20,8 +21,10 @@ import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.RouteStoreTime;
+import com.dataservicios.ttauditbayermercaderismo.model.StockProductPop;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.model.User;
+import com.dataservicios.ttauditbayermercaderismo.model.Visit;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
@@ -40,7 +43,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	// name of the database file for your application -- change to something appropriate for your app
 	private static final String DATABASE_NAME = "db_bayer_m";
 	// any time you make changes to your database objects, you may have to increase the database version
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 13;
     private Context myContext;
 	// the DAO object we use to access the SimpleData table
     //pressure
@@ -58,8 +61,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<RouteStoreTime, Integer>        RouteStoreTimeDao   = null;
 	private Dao<Publicity, Integer>             PublicityDao        = null;
 	private Dao<PublicityHistory, Integer>      PublicityHistoryDao = null;
-	private Dao<ProductDetail, Integer>         ProductDetailDao = null;
-	private Dao<Product, Integer>               ProductDao = null;
+	private Dao<ProductDetail, Integer>         ProductDetailDao    = null;
+	private Dao<Product, Integer>               ProductDao          = null;
+	private Dao<Visit, Integer>                 VisitDao            = null;
+	private Dao<CategoryProduct, Integer>       CategoryProductDao  = null;
+	private Dao<StockProductPop, Integer>       StockProductPopDao = null;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -86,6 +92,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTable(connectionSource, PublicityHistory.class     );
 			TableUtils.createTable(connectionSource, ProductDetail.class        );
 			TableUtils.createTable(connectionSource, Product.class              );
+			TableUtils.createTable(connectionSource, Visit.class                );
+			TableUtils.createTable(connectionSource, CategoryProduct.class      );
+			TableUtils.createTable(connectionSource, StockProductPop.class      );
 
             Log.i(LOG_TAG, "execute method onCreate: Can't create Tables");
             preloadData(db,myContext);
@@ -115,22 +124,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 				db.execSQL(sql);
 			}
 
-            TableUtils.dropTable(connectionSource,User.class,true           );
-            TableUtils.dropTable(connectionSource, Departament.class,true   );
-            TableUtils.dropTable(connectionSource, District.class,true      );
-            TableUtils.dropTable(connectionSource, Route.class,true         );
-            TableUtils.dropTable(connectionSource, Company.class,true       );
-            TableUtils.dropTable(connectionSource, Store.class,true         );
-            TableUtils.dropTable(connectionSource, Audit.class,true         );
-            TableUtils.dropTable(connectionSource, AuditRoadStore.class,true);
-            TableUtils.dropTable(connectionSource, Poll.class,true          );
-            TableUtils.dropTable(connectionSource, PollOption.class,true    );
-            TableUtils.dropTable(connectionSource, Media.class,true         );
-            TableUtils.dropTable(connectionSource, RouteStoreTime.class,true);
-            TableUtils.dropTable(connectionSource, Publicity.class,true     );
-            TableUtils.dropTable(connectionSource, PublicityHistory.class,true);
-            TableUtils.dropTable(connectionSource, ProductDetail.class,true);
-            TableUtils.dropTable(connectionSource, Product.class,true);
+            TableUtils.dropTable(connectionSource,User.class,true               );
+            TableUtils.dropTable(connectionSource, Departament.class,true       );
+            TableUtils.dropTable(connectionSource, District.class,true          );
+            TableUtils.dropTable(connectionSource, Route.class,true             );
+            TableUtils.dropTable(connectionSource, Company.class,true           );
+            TableUtils.dropTable(connectionSource, Store.class,true             );
+            TableUtils.dropTable(connectionSource, Audit.class,true             );
+            TableUtils.dropTable(connectionSource, AuditRoadStore.class,true    );
+            TableUtils.dropTable(connectionSource, Poll.class,true              );
+            TableUtils.dropTable(connectionSource, PollOption.class,true        );
+            TableUtils.dropTable(connectionSource, Media.class,true             );
+            TableUtils.dropTable(connectionSource, RouteStoreTime.class,true    );
+            TableUtils.dropTable(connectionSource, Publicity.class,true         );
+            TableUtils.dropTable(connectionSource, PublicityHistory.class,true  );
+            TableUtils.dropTable(connectionSource, ProductDetail.class,true     );
+            TableUtils.dropTable(connectionSource, Product.class,true           );
+            TableUtils.dropTable(connectionSource, Visit.class,true             );
+            TableUtils.dropTable(connectionSource, CategoryProduct.class,true   );
+            TableUtils.dropTable(connectionSource, StockProductPop.class,true   );
             onCreate(db,connectionSource);
 
             Log.i(LOG_TAG, "execute method onUpgrade: drop Tables");
@@ -316,6 +328,39 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
         }
         return ProductDao;
+    }
+
+    public Dao<Visit, Integer> getVisitDao() {
+        if (null == VisitDao) {
+            try {
+                VisitDao = getDao(Visit.class);
+            }catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return VisitDao;
+    }
+
+    public Dao<CategoryProduct, Integer> getCategoryProductDao() {
+        if (null == CategoryProductDao) {
+            try {
+                CategoryProductDao = getDao(CategoryProduct.class);
+            }catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return CategoryProductDao;
+    }
+
+    public Dao<StockProductPop, Integer> getStockProductPopDao() {
+        if (null == StockProductPopDao) {
+            try {
+                StockProductPopDao = getDao(StockProductPop.class);
+            }catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return StockProductPopDao;
     }
 
     private void preloadData(SQLiteDatabase db, Context context) {

@@ -172,6 +172,11 @@
     <string name="text_edit_address">Editar dirección</string>
     <string name="message_exit_not_save">Desea salir</string>
     <string name="message_exit_not_save_information">Está seguro que desea salir sin guardar los datos</string>
+    <string name="text_download_visitis_company">Descargando vistas por pampaña</string>
+    <string name="text_download_category_product">Descargando categoría de productos</string>
+    <string name="text_categories">Categorías</string>
+    <string name="text_download_stock_product_pop">Descargando stock de productos POP</string>
+    <string name="text_change_pop">Cambios en POP</string>
 
 
 </resources>

@@ -16,13 +16,17 @@ import android.widget.TextView;
 import com.dataservicios.ttauditbayermercaderismo.R;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
+import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.RouteStoreTime;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.model.User;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteStoreTimeRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.UserRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.GPSTracker;
+import com.dataservicios.ttauditbayermercaderismo.view.PublicitiesActivity;
 import com.dataservicios.ttauditbayermercaderismo.view.StoreAuditActivity;
 
 import java.text.SimpleDateFormat;
@@ -42,6 +46,7 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
     private GPSTracker          gpsTracker;
     private User                user;
     private Company             company;
+    private StoreRepo           storeRepo;
 
 
     public StoreAdapterReciclerView(ArrayList<Store> stores, int resource, Activity activity) {
@@ -57,6 +62,7 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
         DatabaseManager.init(activity);
         UserRepo    userRepo    = new UserRepo(activity);
         CompanyRepo company_repo= new CompanyRepo(activity);
+        storeRepo               = new StoreRepo(activity);
 
         user    = (User)    userRepo.findFirstReg();
         company = (Company) company_repo.findFirstReg();
@@ -85,14 +91,17 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
         holder.tvFullName.setText(store.getFullname());
         holder.tvAddress.setText(String.valueOf(store.getAddress()));
         holder.tvDistrict.setText(String.valueOf(store.getDistrict()));
-        holder.tvType.setText(String.valueOf(store.getType()));
+        holder.tvType.setText(String.valueOf(store.getType() + " (" + store.getCadenRuc()+ ")"));
 
         if(store.getStatus() >= 1)  {
-            holder.btAudit.setVisibility(View.INVISIBLE);
+            holder.btAudit.setVisibility(View.GONE);
             holder.imgStatus.setVisibility(View.VISIBLE) ;
+            holder.btChangePop.setVisibility(View.VISIBLE);
         } else {
             holder.btAudit.setVisibility(View.VISIBLE) ;
             holder.imgStatus.setVisibility(View.INVISIBLE);
+            holder.btChangePop.setVisibility(View.GONE);
+
         }
 
         holder.btShared.setOnClickListener(new View.OnClickListener() {
@@ -106,6 +115,9 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
                 sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
                 sharingIntent.putExtra(Intent.EXTRA_TITLE, shareBody);
                 activity.startActivity(Intent.createChooser(sharingIntent, "Share using"));
+
+                store.setStatus_change(0);
+                storeRepo.update(store);
 
             }
         });
@@ -147,6 +159,30 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
             }
         });
 
+        holder.btChangePop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PublicityRepo publicityRepo = new PublicityRepo(activity);
+                ArrayList<Publicity> publicities = (ArrayList<Publicity>) publicityRepo.findAll();
+
+                for (Publicity p: publicities){
+                    p.setStatus(0);
+                    publicityRepo.update(p);
+                }
+
+                store.setStatus_change(1);
+                storeRepo.update(store);
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("store_id", Integer.valueOf(store.getId()));
+                bundle.putInt("audit_id", Integer.valueOf(56));
+
+                Intent intent = new Intent(activity,PublicitiesActivity.class);
+                intent.putExtras(bundle);
+                activity.startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -171,6 +207,7 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
         private TextView    tvType;
         private Button      btShared;
         private Button      btAudit;
+        private Button      btChangePop;
         private ImageView   imgStatus;
 
         public StoreViewHolder(View itemView) {
@@ -182,6 +219,7 @@ public class StoreAdapterReciclerView extends RecyclerView.Adapter<StoreAdapterR
             tvType          = (TextView)    itemView.findViewById(R.id.tvType);
             btShared        = (Button)      itemView.findViewById(R.id.btShared);
             btAudit         = (Button)      itemView.findViewById(R.id.btAudit);
+            btChangePop     = (Button)      itemView.findViewById(R.id.btChangePop);
             imgStatus       = (ImageView)   itemView.findViewById(R.id.imgStatus);
         }
     }

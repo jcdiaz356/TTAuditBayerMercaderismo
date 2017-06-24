@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.dataservicios.ttauditbayermercaderismo.R;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
+import com.dataservicios.ttauditbayermercaderismo.model.Store;
+import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.view.PollPublicityActivity;
 import com.squareup.picasso.Picasso;
 
@@ -68,10 +70,20 @@ public class PublicityAdapterReciclerView extends RecyclerView.Adapter<Publicity
             @Override
             public void onClick(View v) {
 
-                Poll poll = new Poll();
-                poll.setPublicity_id(publicity.getId());
-                poll.setOrder(3);
-                PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
+                StoreRepo storeRepo = new StoreRepo(activity);
+                Store store = (Store) storeRepo.findById(store_id);
+                if(store.getStatus_change() == 0) {
+                    Poll poll = new Poll();
+                    poll.setPublicity_id(publicity.getId());
+                    poll.setOrder(3);
+                    PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
+                } else  if( store.getStatus_change() == 1) {
+                    Poll poll = new Poll();
+                    poll.setPublicity_id(publicity.getId());
+                    poll.setOrder(12);
+                    PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
+                }
+
 
             }
         });

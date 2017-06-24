@@ -85,6 +85,7 @@ public class AndroidCustomGalleryActivity extends AppCompatActivity {
         intent.putExtra("publicities_id"        ,media.getPublicity_id()       );
         intent.putExtra("product_id"            ,media.getProduct_id()         );
         intent.putExtra("category_product_id"   ,media.getCategory_product_id());
+        intent.putExtra("visit_id"              ,media.getVisit_id()           );
         intent.putExtra("monto"                 ,media.getMonto()              );
         intent.putExtra("razon_social"          ,media.getRazonSocial()        );
         intent.putExtra("tipo"                  ,media.getType()               );
@@ -105,6 +106,7 @@ public class AndroidCustomGalleryActivity extends AppCompatActivity {
         media.setCompany_id(bundle.getInt("company_id"));
         media.setPublicity_id(bundle.getInt("publicities_id"));
         media.setProduct_id(bundle.getInt("product_id"));
+        media.setVisit_id(bundle.getInt("visit_id"));
         media.setCategory_product_id(bundle.getInt("category_product_id"));
         media.setMonto(bundle.getString("monto"));
         media.setRazonSocial(bundle.getString("razon_social"));

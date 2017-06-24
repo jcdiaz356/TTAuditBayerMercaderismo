@@ -115,6 +115,14 @@
                 android:value=".view.StoreAuditActivity" />
         </activity>
         <activity
+            android:name=".view.CategoryProductActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.StoreAuditActivity" />
+        </activity>
+        <activity
             android:name=".view.PollProductActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -151,7 +159,7 @@
             android:enabled="true"
             android:exported="true" />
 
-
+        <activity android:name=".view.StockProductPopActivity"></activity>
     </application>
 
 </manifest>

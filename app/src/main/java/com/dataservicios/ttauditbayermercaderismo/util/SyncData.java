@@ -71,11 +71,9 @@ public class SyncData extends AsyncTask<Void, String, Boolean> {
         ArrayList<Store> stores;
         ArrayList<AuditRoadStore> auditRoadStores;
 
-
         routeRepo.deleteAll();
         storeRepo.deleteAll();
         auditRoadStoreRepo.deleteAll();
-
 
         routes = (ArrayList<Route>) routeRepo.findAll();
         stores = (ArrayList<Store>) storeRepo.findAll();
@@ -83,7 +81,6 @@ public class SyncData extends AsyncTask<Void, String, Boolean> {
 
         routes.clear();
         stores.clear();
-
 
         publishProgress(context.getString(R.string.text_download_routes));
         routes = AuditUtil.getListRoutes(user_id,company_id);
@@ -107,6 +104,9 @@ public class SyncData extends AsyncTask<Void, String, Boolean> {
             rs.setList(audit);
             auditRoadStoreRepo.create(rs);
         }
+
+
+
         routes = (ArrayList<Route>) routeRepo.findAll();
         stores = (ArrayList<Store>) storeRepo.findAll();
         return true;

@@ -30,8 +30,8 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textStyle="bold" />
 
-                    <TextView
-                    android:id="@+id/tvComposicion"
+                <TextView
+                    android:id="@+id/tvOptimo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tvFullName"
@@ -39,15 +39,24 @@
                     android:text="@string/text_description"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     />
-                    <TextView
-                        android:id="@+id/tvUnidad"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/tvComposicion"
-                        android:layout_toEndOf="@+id/imgPhoto"
-                        android:text="@string/text_description"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        />
+                <TextView
+                    android:id="@+id/tvMinimo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvOptimo"
+                    android:layout_toEndOf="@+id/imgPhoto"
+                    android:text="@string/text_description"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    />
+                <TextView
+                    android:id="@+id/tvUnidad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvMinimo"
+                    android:layout_toEndOf="@+id/imgPhoto"
+                    android:text="@string/text_description"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -60,20 +69,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:text="S/. "/>
+                        android:text="Stock:  "/>
                     <EditText
-                        android:id="@+id/etPrecio"
+                        android:id="@+id/etStock"
                         android:layout_width="120dp"
                         android:layout_height="match_parent"
-                        android:inputType="numberDecimal"
+                        android:inputType="number"
                         android:hint="0"/>
                     <!--<Button-->
-                        <!--android:id="@+id/btAudit"-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:layout_alignBottom="@+id/tvTotalStores"-->
-                        <!--android:text="@string/text_auditor"-->
-                        <!--android:theme="@style/RaisedButtonDarkMin" />-->
+                    <!--android:id="@+id/btAudit"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_alignBottom="@+id/tvTotalStores"-->
+                    <!--android:text="@string/text_auditor"-->
+                    <!--android:theme="@style/RaisedButtonDarkMin" />-->
                 </LinearLayout>
 
                 <ImageView
@@ -94,5 +103,6 @@
         </LinearLayout>
     </FrameLayout>
 </android.support.v7.widget.CardView>
+
 
 

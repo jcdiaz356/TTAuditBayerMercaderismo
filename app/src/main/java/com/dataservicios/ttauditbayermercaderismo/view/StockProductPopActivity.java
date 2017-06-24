@@ -12,35 +12,32 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dataservicios.ttauditbayermercaderismo.R;
-import com.dataservicios.ttauditbayermercaderismo.adapter.ProductDetailAdapterRecyclerView;
+import com.dataservicios.ttauditbayermercaderismo.adapter.StockProductPopAdapterRecyclerView;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Audit;
 import com.dataservicios.ttauditbayermercaderismo.model.AuditRoadStore;
-import com.dataservicios.ttauditbayermercaderismo.model.CategoryProduct;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.PollDetail;
-import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
+import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
+import com.dataservicios.ttauditbayermercaderismo.model.StockProductPop;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
-import com.dataservicios.ttauditbayermercaderismo.repo.CategoryProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollRepo;
-import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StockProductPopRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
 import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
@@ -48,68 +45,69 @@ import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ProductPriceActivity extends AppCompatActivity {
-    private static final String LOG_TAG = ProductPriceActivity.class.getSimpleName();
+public class StockProductPopActivity extends AppCompatActivity {
+    private static final String LOG_TAG = StockProductPopActivity.class.getSimpleName();
     private SessionManager                          session;
     private Activity                                activity =  this;
     private ProgressDialog                          pDialog;
     private int                                     user_id;
     private int                                     store_id;
     private int                                     audit_id;
-    private int                                     category_product_id;
+    private int                                     publicity_id;
     private TextView                                tvTotal;
     private Button                                  btSave;
-    private ProductDetailRepo                       productDetailRepo;
+    private StockProductPopRepo                     stockProductPopRepo;
     private StoreRepo                               storeRepo ;
     private RouteRepo                               routeRepo ;
     private CompanyRepo                             companyRepo ;
     private AuditRepo                               auditRepo ;
     private PollRepo                                pollRepo;
     private AuditRoadStoreRepo                      auditRoadStoreRepo ;
-    private CategoryProductRepo                     categoryProductRepo ;
-    private ProductDetailAdapterRecyclerView        productAdapterRecyclerView;
-    private RecyclerView                            productRecyclerView;
+    private PublicityRepo                           publicityRepo;
+    private StockProductPopAdapterRecyclerView      stockProductPopAdapterRecyclerView;
+    private RecyclerView                            pstockProductPopRecyclerView;
     private Audit                                   audit ;
-    private ProductDetail                           productDetail;
+    private StockProductPop                         stockProductPop;
     private Company                                 company ;
     private Route                                   route ;
     private Store                                   store ;
     private AuditRoadStore                          auditRoadStore;
     private Poll                                    poll;
     private PollDetail                              pollDetail;
-    private CategoryProduct                         categoryProduct;
-    private ArrayList<ProductDetail>                productDetails;
-
+    private Publicity                               publicity;
+    private ArrayList<StockProductPop>              stockProductPops;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_product_price);
-
+        setContentView(R.layout.activity_stock_product_pop);
         tvTotal                 = (TextView) findViewById(R.id.tvTotal);
         btSave                  = (Button) findViewById(R.id.btSave);
 
         DatabaseManager.init(this);
 
         storeRepo           = new StoreRepo(activity);
-        productDetailRepo   = new ProductDetailRepo(activity);
+        stockProductPopRepo = new StockProductPopRepo(activity);
         auditRepo           = new AuditRepo(activity);
         companyRepo         = new CompanyRepo(activity);
         routeRepo           = new RouteRepo(activity);
         auditRoadStoreRepo  = new AuditRoadStoreRepo(activity);
         pollRepo            = new PollRepo(activity);
-        categoryProductRepo = new CategoryProductRepo(activity);
+        publicityRepo       = new PublicityRepo(activity);
+
 
         Bundle bundle = getIntent().getExtras();
         store_id            = bundle.getInt("store_id");
         audit_id            = bundle.getInt("audit_id");
-        category_product_id = bundle.getInt("category_product_id");
+        publicity_id        = bundle.getInt("publicity_id");
+
 
         company             = (Company)companyRepo.findFirstReg();
         store               = (Store) storeRepo.findById(store_id);
         route               = (Route) routeRepo.findById(store.getRoute_id());
         auditRoadStore      = (AuditRoadStore)  auditRoadStoreRepo.findByStoreIdAndAuditId(store_id,audit_id);
-        poll                = (Poll)            pollRepo.findByCompanyAuditIdAndOrder(auditRoadStore.getList().getCompany_audit_id(),11);
-        categoryProduct     = (CategoryProduct) categoryProductRepo.findById(category_product_id);
+        poll                = (Poll)            pollRepo.findByCompanyAuditIdAndOrder(auditRoadStore.getList().getCompany_audit_id(),13);
+        publicity           = (Publicity)       publicityRepo.findById(publicity_id);
+
 
         session = new SessionManager(activity);
         HashMap<String, String> userSesion = session.getUserDetails();
@@ -118,25 +116,25 @@ public class ProductPriceActivity extends AppCompatActivity {
         audit = (Audit) auditRepo.findById(audit_id);
         showToolbar(audit.getFullname().toString(),false);
 
-        productRecyclerView  = (RecyclerView) findViewById(R.id.product_recycler_view);
+        pstockProductPopRecyclerView = (RecyclerView) findViewById(R.id.stock_product_sood__recycler_view);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(activity);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        productRecyclerView.setLayoutManager(linearLayoutManager);
+        pstockProductPopRecyclerView.setLayoutManager(linearLayoutManager);
 
-        productDetails = (ArrayList<ProductDetail>) productDetailRepo.findByStoreTypeAndCategoryProductId(store.getType(),category_product_id);
+        stockProductPops = (ArrayList<StockProductPop>) stockProductPopRepo.findAll();
 
-        productAdapterRecyclerView =  new ProductDetailAdapterRecyclerView(productDetails, R.layout.cardview_product_detail, activity,store_id,audit_id);
-        productRecyclerView.setAdapter(productAdapterRecyclerView);
+        stockProductPopAdapterRecyclerView =  new StockProductPopAdapterRecyclerView(stockProductPops, R.layout.cardview_stock_product_pop, activity,store_id,audit_id);
+        pstockProductPopRecyclerView.setAdapter(stockProductPopAdapterRecyclerView);
 
-        int total               = productDetails.size();
+        int total               = stockProductPops.size();
         int productsAudits   = 0;
 
-        for(ProductDetail p: productDetails){
+        for(StockProductPop p: stockProductPops){
             if(p.getStatus()==1) productsAudits ++;
         }
 
         tvTotal.setText(String.valueOf(productsAudits) + " de " + String.valueOf(total));
-        if(productDetails.size() == 0) {
+        if(stockProductPops.size() == 0) {
             btSave.setVisibility(View.INVISIBLE);
         }
         btSave.setOnClickListener(new View.OnClickListener() {
@@ -169,11 +167,11 @@ public class ProductPriceActivity extends AppCompatActivity {
 
     }
 
-    private ArrayList<ProductDetail> filter(ArrayList<ProductDetail> models, String query) {
+    private ArrayList<StockProductPop> filter(ArrayList<StockProductPop> models, String query) {
 
         query = query.toLowerCase();
-        final ArrayList<ProductDetail> filteredModelList = new ArrayList<>();
-        for (ProductDetail s : models) {
+        final ArrayList<StockProductPop> filteredModelList = new ArrayList<>();
+        for (StockProductPop s : models) {
             final String fullName = s.getFullname().toLowerCase().trim();
             if (fullName.contains(query) ) {
                 filteredModelList.add(s);
@@ -202,11 +200,10 @@ public class ProductPriceActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 //storeAdapterRecyclerView.getFilter().filter(newText.toString());
-                final ArrayList<ProductDetail> filteredMStoreList = filter(productDetails, newText);
+                final ArrayList<StockProductPop> filteredMStoreList = filter(stockProductPops, newText);
                 //adapter.setFilter(filteredModelList);
-                productAdapterRecyclerView.setFilter(filteredMStoreList);
+                stockProductPopAdapterRecyclerView.setFilter(filteredMStoreList);
                 return false;
             }
         });
@@ -219,14 +216,13 @@ public class ProductPriceActivity extends AppCompatActivity {
          * */
         @Override
         protected void onPreExecute() {
-            //tvCargando.setText("Cargando ProductDetail...");
+            //tvCargando.setText("Cargando StockProductPop...");
             pDialog = new ProgressDialog(activity);
             pDialog.setMessage(getString(R.string.text_loading));
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
             super.onPreExecute();
-
         }
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -255,15 +251,12 @@ public class ProductPriceActivity extends AppCompatActivity {
             pollDetail.setSelectedOtionsComment("");
             pollDetail.setPriority(0);
 
-            productDetails = (ArrayList<ProductDetail>) productDetailRepo.findByStoreTypeAndCategoryProductId(store.getType(),category_product_id);
+            stockProductPops = (ArrayList<StockProductPop>) stockProductPopRepo.findAll();
 
-            for (ProductDetail m: productDetails) {
-                if(m.getPrecio().trim().equals("0") || m.getPrecio().trim().equals("")){
-
-                } else{
-                    pollDetail.setProduct_id(m.getProduct_id());
-                    pollDetail.setCategory_product_id(m.getCategory_product_id());
-                    pollDetail.setComentario(m.getPrecio().toString());
+            for (StockProductPop m: stockProductPops) {
+                if(m.getStock_encontrado()>0){
+                    pollDetail.setStock_product_pop_id(m.getId());
+                    pollDetail.setComentario(String.valueOf(m.getStock_encontrado()));
                     if (!AuditUtil.insertPollDetail(pollDetail)) return false;
                 }
             }
@@ -276,19 +269,22 @@ public class ProductPriceActivity extends AppCompatActivity {
          * After completing background task Dismiss the progress dialog
          * **/
         protected void onPostExecute(Boolean result) {
-            // dismiss the dialog once productDetail deleted
+            // dismiss the dialog once stockProductPop deleted
             if (result){
 //                AuditRoadStore auditRoadStore = (AuditRoadStore) auditRoadStoreRepo.findByStoreIdAndAuditId(store_id,audit_id);
 //                auditRoadStore.setAuditStatus(1);
 //                auditRoadStoreRepo.update(auditRoadStore);
-                productDetails = (ArrayList<ProductDetail>) productDetailRepo.findByStoreTypeAndCategoryProductId(store.getType(),category_product_id);
-                for (ProductDetail m: productDetails) {
-                    m.setPrecio("");
-                    productDetailRepo.update(m);
+                stockProductPops = (ArrayList<StockProductPop>) stockProductPopRepo.findAll();
+                for (StockProductPop m: stockProductPops) {
+                    m.setStock_encontrado(0);
+                    stockProductPopRepo.update(m);
                 }
-                categoryProduct.setStatus(1);
-                categoryProductRepo.update(categoryProduct);
+//                categoryProduct.setStatus(1);
+//                categoryProductRepo.update(categoryProduct);
 
+                poll.setPublicity_id(publicity_id);
+                poll.setOrder(6);
+                PollPublicityActivity.createInstance(activity, store_id,audit_id,poll);
                 finish();
             } else {
                 Toast.makeText(activity , R.string.message_no_save_data , Toast.LENGTH_LONG).show();
@@ -310,7 +306,7 @@ public class ProductPriceActivity extends AppCompatActivity {
     }
 
 
-//    @Override
+    //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {
 //        if (keyCode == KeyEvent.KEYCODE_BACK) {
 //            onBackPressed();
@@ -321,11 +317,11 @@ public class ProductPriceActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-//        if(productDetails.size() == 0 ) {
+//        if(stockProductPops.size() == 0 ) {
 //            super.onBackPressed ();
 //        } else {
-     //       alertDialogBasico(getString(R.string.message_save_audit_products));
-       // }
+        //       alertDialogBasico(getString(R.string.message_save_audit_products));
+        // }
         super.onBackPressed ();
     }
 

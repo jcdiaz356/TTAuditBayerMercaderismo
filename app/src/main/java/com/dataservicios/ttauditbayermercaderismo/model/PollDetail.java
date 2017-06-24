@@ -4,28 +4,30 @@ package com.dataservicios.ttauditbayermercaderismo.model;
  * Created by Jaime on 5/09/2016.
  */
 public class PollDetail {
-    int     id;
-    int     poll_id;
-    int     store_id;
-    int     sino;
-    int     options ;
-    int     limits ;
-    int     media;
-    int     comment ;
-    int     result;
-    String  limite ;
-    String  comentario ;
-    int     auditor ;
-    int     product_id;
-    int     category_product_id;
-    int     publicity_id;
-    int     category_id;
-    int     company_id;
-    int     created_at;
-    int     commentOptions;
-    String  selectdOptions;
-    String  selectedOtionsComment;
-    int     priority ;
+    private int     id;
+    private int     poll_id;
+    private int     store_id;
+    private int     sino;
+    private int     options ;
+    private int     limits ;
+    private int     media;
+    private int     comment ;
+    private int     result;
+    private String  limite ;
+    private String  comentario ;
+    private int     auditor ;
+    private int     product_id;
+    private int     category_product_id;
+    private int     publicity_id;
+    private int     category_id;
+    private int     company_id;
+    private int     visit_id;
+    private int     created_at;
+    private int     commentOptions;
+    private int     stock_product_pop_id;
+    private String  selectdOptions;
+    private String  selectedOtionsComment;
+    private int     priority ;
 
     public int getId() {
         return id;
@@ -147,6 +149,14 @@ public class PollDetail {
         this.company_id = company_id;
     }
 
+    public int getVisit_id() {
+        return visit_id;
+    }
+
+    public void setVisit_id(int visit_id) {
+        this.visit_id = visit_id;
+    }
+
     public int getCategory_product_id() {
         return category_product_id;
     }
@@ -193,6 +203,14 @@ public class PollDetail {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public int getStock_product_pop_id() {
+        return stock_product_pop_id;
+    }
+
+    public void setStock_product_pop_id(int stock_product_pop_id) {
+        this.stock_product_pop_id = stock_product_pop_id;
     }
 
     public int getCategory_id() {

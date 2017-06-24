@@ -292,6 +292,7 @@ public class PollProductActivity extends AppCompatActivity {
         media.setPoll_id(poll.getId());
         media.setCompany_id(company_id);
         media.setProduct_id(product_id);
+        media.setVisit_id(store.getVisit_id());
         media.setType(1);
         AndroidCustomGalleryActivity.createInstance((Activity) activity, media);
     }
@@ -362,6 +363,7 @@ public class PollProductActivity extends AppCompatActivity {
         pollDetail.setProduct_id(poll.getProduct_id());
         pollDetail.setCompany_id(company_id);
         pollDetail.setCommentOptions(poll.getComment());
+        pollDetail.setVisit_id(store.getVisit_id());
         pollDetail.setSelectdOptions(selectedOptions);
         pollDetail.setSelectedOtionsComment(commentOptions);
         pollDetail.setPriority(0);

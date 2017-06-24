@@ -28,6 +28,7 @@ import com.dataservicios.ttauditbayermercaderismo.R;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Audit;
 import com.dataservicios.ttauditbayermercaderismo.model.AuditRoadStore;
+import com.dataservicios.ttauditbayermercaderismo.model.CategoryProduct;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.Product;
@@ -38,6 +39,7 @@ import com.dataservicios.ttauditbayermercaderismo.model.RouteStoreTime;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.CategoryProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
@@ -133,7 +135,7 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
         btSaveGeo           = (Button)   findViewById(R.id.btSaveGeo);
         btcloseRouteStore   = (Button)   findViewById(R.id.btcloseRouteStore);
         ibEditAddress       = (ImageButton) findViewById(R.id.ibEditAddress);
-        imgAuditStore             = (ImageButton) findViewById(R.id.imgAuditStore);
+        imgAuditStore       = (ImageButton) findViewById(R.id.imgAuditStore);
 
 
         store = (Store) storeRepo.findById(store_id);
@@ -146,7 +148,7 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
         tvAddress.setText(String.valueOf(store.getAddress()));
         tvReferencia.setText(String.valueOf(store.getUrbanization()));
         tvDistrict.setText(String.valueOf(store.getDistrict()));
-        tvType.setText(String.valueOf(store.getType()));
+        tvType.setText(String.valueOf(store.getType()) + " (" + store.getCadenRuc() + ")");
 
         ibEditAddress.setVisibility(View.VISIBLE);
         ibEditAddress.setOnClickListener(new View.OnClickListener() {
@@ -270,16 +272,22 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
 
                         ProductDetailRepo productDetailRepo = new ProductDetailRepo(activity);
                         ArrayList<ProductDetail> productDetails = (ArrayList<ProductDetail>) productDetailRepo.findAll();
-
                         for (ProductDetail p: productDetails){
                             p.setStatus(0);
                             productDetailRepo.update(p);
                         }
 
+                        CategoryProductRepo categoryProductRepo = new CategoryProductRepo(activity);
+                        ArrayList<CategoryProduct> categoryProducts = (ArrayList<CategoryProduct>) categoryProductRepo.findAll();
+                        for (CategoryProduct m: categoryProducts){
+                            m.setStatus(0);
+                            categoryProductRepo.update(m);
+                        }
+
                         Bundle bundle = new Bundle();
                         bundle.putInt("store_id", Integer.valueOf(store_id));
                         bundle.putInt("audit_id", Integer.valueOf(audit_id));
-                        Intent intent = new Intent(activity,ProductPriceActivity.class);
+                        Intent intent = new Intent(activity,CategoryProductActivity.class);
                         intent.putExtras(bundle);
                         activity.startActivity(intent);
                     } else if (audit_id == 57){

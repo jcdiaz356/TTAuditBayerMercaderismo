@@ -52,17 +52,12 @@ public class LoginActivity extends AppCompatActivity {
         etUsuario   = (TextInputEditText) findViewById(R.id.etUser);
         etPassword  = (TextInputEditText) findViewById(R.id.etPassword);
         ckSavePassword  = (CheckBox) findViewById(R.id.ckSavePassword);
-
 //        etUsuario.setText("jcdiaz356@hotmail.com");
 //        etPassword.setText("123456");
-
         session = new SessionManager(getApplicationContext());
-
         DatabaseManager.init(activity);
         userRepo = new UserRepo(activity);
         companyRepo = new CompanyRepo(activity);
-
-
 
         ArrayList<Company> companies = (ArrayList<Company>) companyRepo.findAll();
         for(Company c:companies ){

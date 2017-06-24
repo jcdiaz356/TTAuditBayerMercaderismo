@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Audit;
+import com.dataservicios.ttauditbayermercaderismo.model.CategoryProduct;
 import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
 import com.dataservicios.ttauditbayermercaderismo.model.PollOption;
@@ -26,7 +27,10 @@ import com.dataservicios.ttauditbayermercaderismo.model.Product;
 import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
+import com.dataservicios.ttauditbayermercaderismo.model.StockProductPop;
+import com.dataservicios.ttauditbayermercaderismo.model.Visit;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.CategoryProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollOptionRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PollRepo;
@@ -34,6 +38,8 @@ import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityHistoryRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StockProductPopRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.VisitRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
 
 import java.util.ArrayList;
@@ -137,6 +143,14 @@ public class MainActivity extends AppCompatActivity {
 //                    return false;
 //                }
 
+                publishProgress(activity.getString(R.string.text_download_visitis_company));
+                ArrayList<Visit> visits = AuditUtil.getVisits(company.getId()) ;
+                VisitRepo visitRepo = new VisitRepo(activity);
+                visitRepo.deleteAll();
+                for (Visit m: visits){
+                    visitRepo.create(m);
+                }
+
                 publishProgress(activity.getString(R.string.text_download_audits));
                 AuditRepo auditRepo= new AuditRepo(activity);
                 ArrayList<Audit> audits = (ArrayList<Audit>) auditRepo.findAll();
@@ -235,6 +249,22 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                publishProgress(activity.getString(R.string.text_download_category_product));
+                CategoryProductRepo categoryProductRepo = new CategoryProductRepo(activity);
+                ArrayList<CategoryProduct> categoryProducts = (ArrayList<CategoryProduct>) categoryProductRepo.findByCompanyId(company.getId());
+
+                if(categoryProducts.size()==0){
+                    categoryProductRepo.deleteAll();
+                    categoryProducts = AuditUtil.getListCategoryProducts(company.getId());
+                    if(categoryProducts.size()!=0){
+                        for(CategoryProduct p: categoryProducts){
+                            categoryProductRepo.create(p);
+                        }
+                    } else  {
+                        return  false;
+                    }
+                }
+
                 publishProgress(activity.getString(R.string.text_download_products_competity));
                 ProductRepo productRepo = new ProductRepo(activity);
                 ArrayList<Product> products = (ArrayList<Product>) productRepo.findByCompanyId(company.getId());
@@ -252,14 +282,12 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-
-
                 publishProgress(activity.getString(R.string.text_download_publicity_history));
                 PublicityHistoryRepo publicityHistoryRepo = new PublicityHistoryRepo(activity);
                 ArrayList<PublicityHistory> publicityHistories = (ArrayList<PublicityHistory>) publicityHistoryRepo.findAll();
 
                 if(publicityHistories.size()==0){
-                    productRepo.deleteAll();
+                    publicityHistoryRepo.deleteAll();
                     publicityHistories = AuditUtil.getListPublicitiesHistory(company.getId());
                     if(publicityHistories.size()!=0){
                         for(PublicityHistory p: publicityHistories){
@@ -270,6 +298,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                publishProgress(activity.getString(R.string.text_download_stock_product_pop));
+                StockProductPopRepo stockProductPopRepo = new StockProductPopRepo(activity);
+                ArrayList<StockProductPop> stockProductPops = (ArrayList<StockProductPop>) stockProductPopRepo.findAll();
+
+                if(stockProductPops.size()==0){
+                    stockProductPopRepo.deleteAll();
+                    stockProductPops = AuditUtil.getListStockProductPop(company.getId());
+                    if(stockProductPops.size()!=0){
+                        for(StockProductPop m: stockProductPops){
+                            stockProductPopRepo.create(m);
+                        }
+                    } else  {
+                        return  false;
+                    }
+                }
 
                 ArrayList<PublicityHistory> publicityHistories1 = (ArrayList<PublicityHistory>) publicityHistoryRepo.findAll();
                 ArrayList<Product> products1 = (ArrayList<Product>) productRepo.findByCompanyId(company.getId());
