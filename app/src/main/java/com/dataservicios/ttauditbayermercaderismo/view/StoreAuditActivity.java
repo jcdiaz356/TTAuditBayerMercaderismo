@@ -36,6 +36,7 @@ import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.RouteStoreTime;
+import com.dataservicios.ttauditbayermercaderismo.model.StockProductPop;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
@@ -46,6 +47,7 @@ import com.dataservicios.ttauditbayermercaderismo.repo.ProductRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.RouteStoreTimeRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StockProductPopRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
 import com.dataservicios.ttauditbayermercaderismo.util.GPSTracker;
@@ -89,6 +91,7 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
     private AuditRoadStoreRepo    auditRoadStoreRepo ;
     private StoreRepo             storeRepo ;
     private CompanyRepo           companyRepo ;
+    private StockProductPopRepo   stockProductPopRepo ;
     private Route                 route ;
     private Store                 store ;
     private Company               company ;
@@ -118,6 +121,7 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
         storeRepo           = new StoreRepo(activity);
         companyRepo         = new CompanyRepo(activity);
         auditRoadStoreRepo  = new AuditRoadStoreRepo(activity);
+        stockProductPopRepo = new StockProductPopRepo(activity);
 
         ArrayList<Company> companies = (ArrayList<Company>) companyRepo.findAll();
         for (Company c: companies){
@@ -260,6 +264,12 @@ public class StoreAuditActivity extends AppCompatActivity implements OnMapReadyC
                         for (Publicity p: publicities){
                             p.setStatus(0);
                             publicityRepo.update(p);
+                        }
+
+                        ArrayList<StockProductPop> stockProductPops = (ArrayList<StockProductPop>) stockProductPopRepo.findAll();
+                        for (StockProductPop m: stockProductPops) {
+                            m.setStock_encontrado(0);
+                            stockProductPopRepo.update(m);
                         }
 
                         Bundle bundle = new Bundle();

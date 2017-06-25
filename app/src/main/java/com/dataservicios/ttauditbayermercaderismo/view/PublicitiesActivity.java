@@ -2,8 +2,10 @@ package com.dataservicios.ttauditbayermercaderismo.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dataservicios.ttauditbayermercaderismo.R;
 import com.dataservicios.ttauditbayermercaderismo.adapter.CustomItemClickListener;
@@ -20,14 +23,23 @@ import com.dataservicios.ttauditbayermercaderismo.adapter.PublicityAdapterRecicl
 import com.dataservicios.ttauditbayermercaderismo.adapter.PublicityHistoryAdapterReciclerView;
 import com.dataservicios.ttauditbayermercaderismo.db.DatabaseManager;
 import com.dataservicios.ttauditbayermercaderismo.model.Audit;
+import com.dataservicios.ttauditbayermercaderismo.model.AuditRoadStore;
+import com.dataservicios.ttauditbayermercaderismo.model.Company;
 import com.dataservicios.ttauditbayermercaderismo.model.Poll;
+import com.dataservicios.ttauditbayermercaderismo.model.PollDetail;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
 import com.dataservicios.ttauditbayermercaderismo.model.Publicity;
 import com.dataservicios.ttauditbayermercaderismo.model.PublicityHistory;
+import com.dataservicios.ttauditbayermercaderismo.model.Route;
 import com.dataservicios.ttauditbayermercaderismo.model.Store;
 import com.dataservicios.ttauditbayermercaderismo.repo.AuditRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.AuditRoadStoreRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.CompanyRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityHistoryRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.PublicityRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.RouteRepo;
 import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
+import com.dataservicios.ttauditbayermercaderismo.util.AuditUtil;
 import com.dataservicios.ttauditbayermercaderismo.util.SessionManager;
 
 import java.util.ArrayList;
@@ -35,6 +47,7 @@ import java.util.HashMap;
 
 public class PublicitiesActivity extends AppCompatActivity {
     private static final String LOG_TAG = PublicitiesActivity.class.getSimpleName();
+    private ProgressDialog                          pDialog;
     private SessionManager                          session;
     private Activity                                activity =  this;
     private int                                     user_id;
@@ -47,6 +60,9 @@ public class PublicitiesActivity extends AppCompatActivity {
     private PublicityHistoryRepo                    publicityHistoryRepo;
     private AuditRepo                               auditRepo ;
     private StoreRepo                               storeRepo;
+    private CompanyRepo                             companyRepo;
+    private RouteRepo                               routeRepo;
+    private AuditRoadStoreRepo                      auditRoadStoreRepo ;
     private PublicityAdapterReciclerView            publicityAdapterReciclerView;
     private PublicityHistoryAdapterReciclerView     publicityHistoryAdapterReciclerView;
     private RecyclerView                            publicityRecyclerView;
@@ -54,7 +70,10 @@ public class PublicitiesActivity extends AppCompatActivity {
     private Publicity                               publicity ;
     private Audit                                   audit ;
     private Store                                   store;
+    private Company                                 company;
+    private Route                                   route;
     private PublicityHistory                        publicityHistory;
+    private AuditRoadStore                          auditRoadStore;
     private ArrayList<Publicity>                    publicities;
     private ArrayList<PublicityHistory>             publicitiesHistory;
     @Override
@@ -74,6 +93,9 @@ public class PublicitiesActivity extends AppCompatActivity {
         auditRepo               = new AuditRepo(activity);
         publicityHistoryRepo    = new PublicityHistoryRepo(activity);
         storeRepo               = new StoreRepo(activity);
+        companyRepo             = new CompanyRepo(activity);
+        routeRepo               = new RouteRepo(activity);
+        auditRoadStoreRepo      = new AuditRoadStoreRepo(activity);
 
         Bundle bundle = getIntent().getExtras();
         store_id = bundle.getInt("store_id");
@@ -84,8 +106,11 @@ public class PublicitiesActivity extends AppCompatActivity {
         HashMap<String, String> userSesion = session.getUserDetails();
         user_id = Integer.valueOf(userSesion.get(SessionManager.KEY_ID_USER)) ;
 
-        audit = (Audit) auditRepo.findById(audit_id);
-        store = (Store) storeRepo.findById(store_id);
+        audit               = (Audit) auditRepo.findById(audit_id);
+        store               = (Store) storeRepo.findById(store_id);
+        route               = (Route) routeRepo.findById(store.getRoute_id());
+        company             = (Company) companyRepo.findFirstReg();
+        auditRoadStore      = (AuditRoadStore)  auditRoadStoreRepo.findByStoreIdAndAuditId(store_id,audit_id);
         showToolbar(audit.getFullname().toString(),false);
 
 
@@ -96,8 +121,26 @@ public class PublicitiesActivity extends AppCompatActivity {
 
         publicities = (ArrayList<Publicity>) publicityRepo.findAll();
 
+        int contador = 0;
+       // publicities.indexOf(m.getId());
+        if(store.getType().equals("AASS")) {
+            publicities.clear();
+            publicities.add((Publicity) publicityRepo.findById(585));
+            publicities.add((Publicity) publicityRepo.findById(586));
+        } else {
+                for(int i=0; i<publicities.size(); i++) {
+                    if(publicities.get(i).getId() == 585 ) publicities.remove(i);
+                }
+                for(int i=0; i<publicities.size(); i++) {
+                    if(publicities.get(i).getId() == 586 ) publicities.remove(i);
+                }
+        }
+
+
         publicityAdapterReciclerView =  new PublicityAdapterReciclerView(publicities, R.layout.cardview_publicity, activity,store_id,audit_id);
+
         publicityRecyclerView.setAdapter(publicityAdapterReciclerView);
+
 
         publicityHistoryRecyclerView = (RecyclerView) findViewById(R.id.publicities_history_recycler_view);
         linearLayoutManager = new LinearLayoutManager(activity);
@@ -164,11 +207,19 @@ public class PublicitiesActivity extends AppCompatActivity {
                         if(store.getStatus_change() ==1) {
                             finish();
                         } else if(store.getStatus_change() == 0) {
-                            Poll poll = new Poll();
-                            poll.setPublicity_id(0);
-                            poll.setOrder(8);
-                            PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
-                            finish();
+
+                            if(store.getType().equals("AASS")) {
+
+                                new savePoll().execute();
+
+                            } else {
+                                Poll poll = new Poll();
+                                poll.setPublicity_id(0);
+                                poll.setOrder(8);
+                                PollPublicityActivity.createInstance((Activity) activity, store_id,audit_id,poll);
+                                finish();
+                            }
+
                         }
 
                         dialog.dismiss();
@@ -188,6 +239,51 @@ public class PublicitiesActivity extends AppCompatActivity {
 
 
     }
+
+
+
+    class savePoll extends AsyncTask<Void, Integer , Boolean> {
+        /**
+         * Antes de comenzar en el hilo determinado, Mostrar progresión
+         * */
+        @Override
+        protected void onPreExecute() {
+            //tvCargando.setText("Cargando ProductDetail...");
+            pDialog = new ProgressDialog(activity);
+            pDialog.setMessage(getString(R.string.text_loading));
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+            super.onPreExecute();
+
+        }
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO Auto-generated method stub
+
+
+            if (!AuditUtil.closeAuditStore(audit_id, store_id, company.getId(), route.getId())) return false;
+
+            return true;
+        }
+        /**
+         * After completing background task Dismiss the progress dialog
+         * **/
+        protected void onPostExecute(Boolean result) {
+            // dismiss the dialog once productDetail deleted
+            if (result){
+
+                AuditRoadStore auditRoadStore = (AuditRoadStore) auditRoadStoreRepo.findByStoreIdAndAuditId(store_id,audit_id);
+                auditRoadStore.setAuditStatus(1);
+                auditRoadStoreRepo.update(auditRoadStore);
+                finish();
+            } else {
+                Toast.makeText(activity , R.string.message_no_save_data , Toast.LENGTH_LONG).show();
+            }
+            pDialog.dismiss();
+        }
+    }
+
 
     public void showToolbar(String title, boolean upButton){
 
@@ -239,7 +335,12 @@ public class PublicitiesActivity extends AppCompatActivity {
 //            alertDialogBasico(getString(R.string.message_save_audit_material_pop));
 //        }
 
-        super.onBackPressed();
+        if(publicities.size() == 0 ) {
+            super.onBackPressed ();
+        } else {
+            alertDialogBasico(getString(R.string.message_save_audit_products));
+        }
+
     }
 
 

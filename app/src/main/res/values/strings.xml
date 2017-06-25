@@ -177,6 +177,10 @@
     <string name="text_categories">Categorías</string>
     <string name="text_download_stock_product_pop">Descargando stock de productos POP</string>
     <string name="text_change_pop">Cambios en POP</string>
+    <string name="text_stock">Stok:</string>
+    <string name="text_optimo">Optimo:</string>
+    <string name="text_minimo">Minimo:</string>
+    <string name="text_unidad">Unidad:</string>
 
 
 </resources>

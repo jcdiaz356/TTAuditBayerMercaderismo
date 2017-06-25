@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import com.dataservicios.ttauditbayermercaderismo.R;
 import com.dataservicios.ttauditbayermercaderismo.model.CategoryProduct;
+import com.dataservicios.ttauditbayermercaderismo.model.ProductDetail;
+import com.dataservicios.ttauditbayermercaderismo.model.Store;
+import com.dataservicios.ttauditbayermercaderismo.repo.ProductDetailRepo;
+import com.dataservicios.ttauditbayermercaderismo.repo.StoreRepo;
 import com.dataservicios.ttauditbayermercaderismo.view.CategoryProductActivity;
 import com.dataservicios.ttauditbayermercaderismo.view.ProductPriceActivity;
 import com.squareup.picasso.Picasso;
@@ -66,6 +70,17 @@ public class CategoryProductsAdapterRecyclerView extends RecyclerView.Adapter<Ca
         holder.btAudit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                ProductDetailRepo productDetailRepo = new ProductDetailRepo(activity);
+                StoreRepo storeRepo = new StoreRepo(activity);
+                Store store = (Store) storeRepo.findById(store_id);
+
+                ArrayList<ProductDetail> productDetails = (ArrayList<ProductDetail>) productDetailRepo.findByStoreTypeAndCategoryProductId(store.getType(),categoryProduct.getId());
+
+                for (ProductDetail m: productDetails) {
+                    m.setPrecio("");
+                    productDetailRepo.update(m);
+                }
 
 
                 Bundle bundle = new Bundle();

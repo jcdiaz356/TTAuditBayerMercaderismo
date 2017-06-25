@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.dataservicios.ttauditbayermercaderismo.R;
 import com.dataservicios.ttauditbayermercaderismo.model.StockProductPop;
 import com.dataservicios.ttauditbayermercaderismo.repo.StockProductPopRepo;
@@ -42,7 +44,32 @@ public class StockProductPopAdapterRecyclerView extends RecyclerView.Adapter<Sto
     @Override
     public StockProductPopViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(resource, parent, false);
-        return new StockProductPopViewHolder(view) ;
+
+        StockProductPopViewHolder vh = new StockProductPopViewHolder(view, new StockProductPopViewHolder.ITextWatcher() {
+            @Override
+            public void beforeTextChanged(int position, CharSequence s, int start, int count, int after) {
+                // do something
+            }
+
+            @Override
+            public void onTextChanged(int position, CharSequence s, int start, int before, int count) {
+
+                String stock = s.toString().trim();
+
+                if(stock.length() > 0){
+                    stockProductPops.get(position).setStock_encontrado(Integer.valueOf(stock));
+                    stockProductPopRepo.update(stockProductPops.get(position));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(int position, Editable s) {
+                // do something
+            }
+        });
+
+       // return new StockProductPopViewHolder(view) ;
+        return vh ;
     }
 
     @Override
@@ -54,36 +81,34 @@ public class StockProductPopAdapterRecyclerView extends RecyclerView.Adapter<Sto
         holder.tvOptimo.setText(String.valueOf(stockProductPop.getOptimo()));
         holder.tvUnidad.setText(stockProductPop.getUnidad());
 
+        holder.imgStatus.setVisibility(View.GONE);
         Picasso.with(activity)
                 .load(R.drawable.thumbs_ttaudit)
                 .placeholder(R.drawable.loading_image)
                 .error(R.drawable.thumbs_ttaudit)
                 .into(holder.imgPhoto);
 
-        holder.etStock.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence s, int st, int b, int c)
-            {
-                if(holder.etStock.getText().length() > 0){
-                    stockProductPop.setStock_encontrado(Integer.valueOf(String.valueOf(holder.etStock.getText())));
-                    stockProductPopRepo.update(stockProductPop);
-                }
-
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int st, int c, int a)
-            {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-
-            }
-        });
+//        holder.etStock.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void onTextChanged(CharSequence s, int st, int b, int c)
+//            {
+//                String stock = holder.etStock.getText().toString().trim();
+//                if(stock.length() > 0){
+//                    stockProductPop.setStock_encontrado(Integer.valueOf(String.valueOf(holder.etStock.getText())));
+//                    stockProductPopRepo.update(stockProductPop);
+//                }
+//            }
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int st, int c, int a)
+//            {
+//
+//            }
+//            @Override
+//            public void afterTextChanged(Editable s)
+//            {
+//
+//            }
+//        });
     }
 
     @Override
@@ -91,17 +116,27 @@ public class StockProductPopAdapterRecyclerView extends RecyclerView.Adapter<Sto
         return stockProductPops.size();
     }
 
-    public class StockProductPopViewHolder extends RecyclerView.ViewHolder {
+    public static class StockProductPopViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView    tvFullName;
-        private TextView    tvUnidad;
-        private TextView    tvOptimo;
-        private TextView    tvMinimo;
-        private EditText    etStock;
-        private ImageView   imgPhoto;
-        private ImageView   imgStatus;
+        private  TextView         tvFullName;
+        private  TextView         tvUnidad;
+        private  TextView         tvOptimo;
+        private  TextView         tvMinimo;
+        private  EditText         etStock;
+        private  ImageView        imgPhoto;
+        private  ImageView        imgStatus;
+        private ITextWatcher      mTextWatcher;
 
-        public StockProductPopViewHolder(View itemView) {
+        public interface ITextWatcher {
+            // you can add/remove methods as you please, maybe you dont need this much
+            void beforeTextChanged(int position, CharSequence s, int start, int count, int after);
+
+            void onTextChanged(int position, CharSequence s, int start, int before, int count);
+
+            void afterTextChanged(int position, Editable s);
+        }
+
+        public StockProductPopViewHolder(View itemView, ITextWatcher textWatcher) {
             super(itemView);
             tvFullName      = (TextView) itemView.findViewById(R.id.tvFullName);
             tvOptimo        = (TextView) itemView.findViewById(R.id.tvOptimo);
@@ -110,6 +145,24 @@ public class StockProductPopAdapterRecyclerView extends RecyclerView.Adapter<Sto
             etStock         = (EditText)  itemView.findViewById(R.id.etStock);
             imgPhoto        = (ImageView)  itemView.findViewById(R.id.imgPhoto);
             imgStatus       = (ImageView)  itemView.findViewById(R.id.imgStatus);
+
+            mTextWatcher = textWatcher;
+            this.etStock.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    mTextWatcher.beforeTextChanged(getAdapterPosition(), s, start, count, after);
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    mTextWatcher.onTextChanged(getAdapterPosition(), s, start, before, count);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    mTextWatcher.afterTextChanged(getAdapterPosition(), s);
+                }
+            });
         }
     }
 

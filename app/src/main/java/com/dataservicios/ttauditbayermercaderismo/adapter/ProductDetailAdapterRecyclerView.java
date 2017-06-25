@@ -49,12 +49,34 @@ public class ProductDetailAdapterRecyclerView extends RecyclerView.Adapter<Produ
     public ProductDetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(resource, parent, false);
 
-        return new ProductDetailViewHolder(view) ;
+        ProductDetailViewHolder vh = new ProductDetailViewHolder(view, new ProductDetailViewHolder.ITextWatcher() {
+            @Override
+            public void beforeTextChanged(int position, CharSequence s, int start, int count, int after) {
+                // do something
+            }
+
+            @Override
+            public void onTextChanged(int position, CharSequence s, int start, int before, int count) {
+                productDetails.get(position).setPrecio(s.toString());
+                productDetailRepo.update(productDetails.get(position));
+            }
+
+            @Override
+            public void afterTextChanged(int position, Editable s) {
+                // do something
+            }
+        });
+
+
+        //return new ProductDetailViewHolder(view) ;
+        return vh ;
     }
 
     @Override
     public void onBindViewHolder(final ProductDetailViewHolder holder, int position) {
         final ProductDetail productDetail = productDetails.get(position);
+
+        //holder.setIsRecyclable(false);
 
         holder.tvFullName.setText(productDetail.getFullname());
         holder.tvComposicion.setText(productDetail.getComposicion());
@@ -66,56 +88,29 @@ public class ProductDetailAdapterRecyclerView extends RecyclerView.Adapter<Produ
                 .into(holder.imgPhoto);
 
 
-        holder.etPrecio.addTextChangedListener(new TextWatcher() {
+        holder.imgStatus.setVisibility(View.GONE);
+        holder.etPrecio.setText(productDetail.getPrecio());
 
-            String afterTextChanged = "";
-            String beforeTextChanged = "";
-            String onTextChanged = "";
 
-            @Override
-            public void onTextChanged(CharSequence s, int st, int b, int c)
-            {
-                //onTextChanged = holder.etPrecio.getText().toString();
-                //holder.etPrecio.getText().toString();
-                productDetail.setPrecio(holder.etPrecio.getText().toString());
-                productDetailRepo.update(productDetail);
-            }
+        //holder.etPrecio.setText(productDetail.getPrecio());
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int st, int c, int a)
-            {
-                beforeTextChanged = holder.etPrecio.getText().toString();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-
-//                Toast.makeText(activity, "before: " + beforeTextChanged
-//                                + '\n' + "on: " + onTextChanged
-//                                + '\n' + "after: " + afterTextChanged
-//                        ,Toast.LENGTH_SHORT).show();
-            }
-        });
-//        if(productDetail.getStatus() == 0){
-//            holder.imgStatus.setVisibility(View.INVISIBLE);
-//            holder.btAudit.setVisibility(View.VISIBLE);
-//        } else {
-//            holder.imgStatus.setVisibility(View.VISIBLE);
-//            holder.btAudit.setVisibility(View.INVISIBLE);
-//        }
-//        holder.btAudit.setOnClickListener(new View.OnClickListener() {
+//        holder.etPrecio.addTextChangedListener(new TextWatcher() {
 //            @Override
-//            public void onClick(View v) {
-//
-//                Poll poll = new Poll();
-//                poll.setProduct_id(productDetail.getProduct_id());
-//                poll.setCategory_product_id(productDetail.getCategory_product_id());
-//                poll.setOrder(10);
-//                PollProductActivity.createInstance((Activity) activity, store_id,audit_id,poll);
-//
+//            public void onTextChanged(CharSequence s, int st, int b, int c)
+//            {
+//                productDetail.setPrecio(s.toString());
+//                productDetailRepo.update(productDetail);
+//            }
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int st, int c, int a)
+//            {
+//            }
+//            @Override
+//            public void afterTextChanged(Editable s)
+//            {
 //            }
 //        });
+
     }
 
     @Override
@@ -123,25 +118,49 @@ public class ProductDetailAdapterRecyclerView extends RecyclerView.Adapter<Produ
         return productDetails.size();
     }
 
-    public class ProductDetailViewHolder extends RecyclerView.ViewHolder {
+    public static class ProductDetailViewHolder extends RecyclerView.ViewHolder {
 
         private TextView    tvFullName;
         private TextView    tvUnidad;
         private TextView    tvComposicion;
-        //private Button      btAudit;
         private EditText    etPrecio;
+        private ITextWatcher mTextWatcher;
         private ImageView   imgPhoto;
         private ImageView   imgStatus;
 
-        public ProductDetailViewHolder(View itemView) {
+        public interface ITextWatcher {
+            // you can add/remove methods as you please, maybe you dont need this much
+            void beforeTextChanged(int position, CharSequence s, int start, int count, int after);
+            void onTextChanged(int position, CharSequence s, int start, int before, int count);
+            void afterTextChanged(int position, Editable s);
+        }
+
+        public ProductDetailViewHolder(View itemView, ITextWatcher textWatcher) {
             super(itemView);
             tvFullName      = (TextView) itemView.findViewById(R.id.tvFullName);
             tvComposicion   = (TextView) itemView.findViewById(R.id.tvComposicion);
             tvUnidad        = (TextView) itemView.findViewById(R.id.tvUnidad);
-           // btAudit         = (Button)  itemView.findViewById(R.id.btAudit);
             etPrecio        = (EditText)  itemView.findViewById(R.id.etPrecio);
             imgPhoto        = (ImageView)  itemView.findViewById(R.id.imgPhoto);
             imgStatus       = (ImageView)  itemView.findViewById(R.id.imgStatus);
+
+            mTextWatcher = textWatcher;
+            this.etPrecio.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    mTextWatcher.beforeTextChanged(getAdapterPosition(), s, start, count, after);
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    mTextWatcher.onTextChanged(getAdapterPosition(), s, start, before, count);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    mTextWatcher.afterTextChanged(getAdapterPosition(), s);
+                }
+            });
         }
     }
 

@@ -497,7 +497,7 @@ public class PollPublicityActivity extends AppCompatActivity {
                 });
                 break;
             case 8:
-                showPollOptionsControl(true);
+                showPollOptionsControl(false);
                 swYesNo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -584,28 +584,57 @@ public class PollPublicityActivity extends AppCompatActivity {
                     lyOptions.addView(radioGroup);
                 } else if (poll.getOption_type() == 1) {
                     checkBoxArray = new CheckBox[pollOptions.size()];
-                    int counter =0;
-                    for (PollOption po: pollOptions){
+                    int  counter =0;
+                    for ( final PollOption po: pollOptions){
                         checkBoxArray[counter] = new CheckBox(activity);
                         checkBoxArray[counter].setText(po.getOptions());
                         checkBoxArray[counter].setTag(po.getCodigo());
                         if(po.getComment()==1) {
-                            checkBoxArray[counter].setOnClickListener(new View.OnClickListener() {
+//                            checkBoxArray[counter].setOnClickListener(new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    if (this.isChecked())
+//                                    {
+//                                        lyOptionComment.removeAllViews();
+//                                        etCommentOption.setHint(activity.getString(R.string.text_comment));
+//                                        etCommentOption.setTag(po.getCodigo().toString());
+//                                        lyOptionComment.addView(etCommentOption);
+//                                    }
+//                                    else
+//                                    {
+//                                        //Perform action when you touch on checkbox and it change to unselected state
+//                                        lyOptionComment.removeAllViews();
+//                                    }
+//
+//                                }
+//                            });
+
+                            checkBoxArray[counter].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                                 @Override
-                                public void onClick(View v) {
-                                    lyOptionComment.removeAllViews();
-                                    etCommentOption.setHint(activity.getString(R.string.text_comment));
-                                    lyOptionComment.addView(etCommentOption);
+                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                    if (buttonView.isChecked()) {
+                                        lyOptionComment.removeAllViews();
+                                        etCommentOption.setHint(activity.getString(R.string.text_comment));
+                                        etCommentOption.setTag(po.getCodigo().toString());
+                                        lyOptionComment.addView(etCommentOption);
+                                    }
+                                    else
+                                    {
+                                        //not checked
+                                        lyOptionComment.removeAllViews();
+                                    }
                                 }
                             });
-                        } else if(po.getComment()==0){
-                            checkBoxArray[counter].setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    lyOptionComment.removeAllViews();
-                                }
-                            });
+
                         }
+//                        else if(po.getComment()==0){
+//                            checkBoxArray[counter].setOnClickListener(new View.OnClickListener() {
+//                                @Override
+//                                public void onClick(View v) {
+//                                    lyOptionComment.removeAllViews();
+//                                }
+//                            });
+//                        }
                         lyOptions.addView(checkBoxArray[counter]);
                         counter ++;
                     }
@@ -633,8 +662,8 @@ public class PollPublicityActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-        //alertDialogBasico(getString(R.string.message_audit_init) );
-        super.onBackPressed();
+        alertDialogBasico(getString(R.string.message_audit_init) );
+        //super.onBackPressed();
     }
 
     private void alertDialogBasico(String message) {

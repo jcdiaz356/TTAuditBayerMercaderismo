@@ -118,13 +118,13 @@ public class ProductPublicityCompetityActivity extends AppCompatActivity {
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (Publicity p:publicities ){
-
-                    if(p.getStatus()==0){
-                        alertDialogBasico(getString(R.string.message_audit_material_pop) + ": \n " + p.getFullname().toString());
-                        return;
-                    }
-                }
+//                for (Publicity p:publicities ){
+//
+//                    if(p.getStatus()==0){
+//                        alertDialogBasico(getString(R.string.message_audit_material_pop) + ": \n " + p.getFullname().toString());
+//                        return;
+//                    }
+//                }
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle(R.string.message_save);

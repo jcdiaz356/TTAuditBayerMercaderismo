@@ -321,12 +321,13 @@ public class ProductPriceActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-//        if(productDetails.size() == 0 ) {
-//            super.onBackPressed ();
-//        } else {
-     //       alertDialogBasico(getString(R.string.message_save_audit_products));
-       // }
-        super.onBackPressed ();
+        if(productDetails.size() == 0 ) {
+            super.onBackPressed ();
+        } else {
+            alertDialogBasico(getString(R.string.message_save_audit_products));
+        }
+
+       // super.onBackPressed ();
     }
 
     private void alertDialogBasico(String message) {

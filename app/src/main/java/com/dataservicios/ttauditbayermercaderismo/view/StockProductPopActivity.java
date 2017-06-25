@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -141,6 +142,14 @@ public class StockProductPopActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+//                for(int i=0;i<stockProductPopAdapterRecyclerView.getItemCount();i++){
+//                    StockProductPopAdapterRecyclerView.StockProductPopViewHolder  viewHolder= (StockProductPopAdapterRecyclerView.StockProductPopViewHolder)
+//                            pstockProductPopRecyclerView.findViewHolderForAdapterPosition(i);
+//                            EditText editText= viewHolder.etStock;
+//
+//                    String datos =  editText.getText().toString();
+//                }
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle(R.string.message_save);
                 builder.setMessage(R.string.message_save_information);
@@ -254,11 +263,11 @@ public class StockProductPopActivity extends AppCompatActivity {
             stockProductPops = (ArrayList<StockProductPop>) stockProductPopRepo.findAll();
 
             for (StockProductPop m: stockProductPops) {
-                if(m.getStock_encontrado()>0){
+                //if(m.getStock_encontrado() > 0){
                     pollDetail.setStock_product_pop_id(m.getId());
                     pollDetail.setComentario(String.valueOf(m.getStock_encontrado()));
                     if (!AuditUtil.insertPollDetail(pollDetail)) return false;
-                }
+               // }
             }
 
 
@@ -317,12 +326,12 @@ public class StockProductPopActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-//        if(stockProductPops.size() == 0 ) {
-//            super.onBackPressed ();
-//        } else {
-        //       alertDialogBasico(getString(R.string.message_save_audit_products));
-        // }
-        super.onBackPressed ();
+        if(stockProductPops.size() == 0 ) {
+            super.onBackPressed ();
+        } else {
+               alertDialogBasico(getString(R.string.message_save_audit_products));
+         }
+        //super.onBackPressed ();
     }
 
     private void alertDialogBasico(String message) {

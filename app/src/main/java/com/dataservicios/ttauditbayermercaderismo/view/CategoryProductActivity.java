@@ -202,4 +202,34 @@ public class CategoryProductActivity extends AppCompatActivity {
         startActivity(getIntent());
     }
 
+
+    @Override
+    public void onBackPressed() {
+
+        if(categoryProducts.size() == 0 ) {
+            super.onBackPressed ();
+        } else {
+            alertDialogBasico(getString(R.string.message_save_audit_products));
+        }
+
+        // super.onBackPressed ();
+    }
+
+
+    private void alertDialogBasico(String message) {
+
+        // 1. Instancia de AlertDialog.Builder con este constructor
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        // 2. Encadenar varios métodos setter para ajustar las características del diálogo
+        builder.setMessage(message);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                return;
+            }
+        });
+        builder.show();
+
+    }
+
 }

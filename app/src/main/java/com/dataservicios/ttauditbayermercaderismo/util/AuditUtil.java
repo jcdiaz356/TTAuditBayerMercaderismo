@@ -264,15 +264,15 @@ public class AuditUtil {
             params.put("commentOptions"         , String.valueOf(pollDetail.getCommentOptions()));
             params.put("selectedOptions"        , String.valueOf(pollDetail.getSelectdOptions()));
             params.put("stock_product_pop_id"   , String.valueOf(pollDetail.getStock_product_pop_id()));
-            params.put("visit_id "              , String.valueOf(pollDetail.getVisit_id()));
+            params.put("visit_id"              , String.valueOf(pollDetail.getVisit_id()));
             params.put("selectedOptionsComment" , String.valueOf(pollDetail.getSelectedOtionsComment()));
             params.put("priority"               , String.valueOf(pollDetail.getPriority()));
 
             JSONParserX jsonParser = new JSONParserX();
             // getting product details by making HTTP request
             //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/json/prueba.json" ,"POST", params);
-            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/savePollDetailsReg" ,"POST", params);
-            //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/saveRegisters" ,"POST", params);
+            //JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/savePollDetailsReg" ,"POST", params);
+            JSONObject json = jsonParser.makeHttpRequest(GlobalConstant.dominio + "/saveRegisters" ,"POST", params);
             // check your log for json response
             Log.d("Login attempt", json.toString());
             // json success, tag que retorna el json

@@ -130,7 +130,6 @@ public class ProductCompetityActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-
                          new savePoll().execute();
                         dialog.dismiss();
 

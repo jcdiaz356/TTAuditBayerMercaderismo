@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -529,6 +530,36 @@ public class PollActivity extends AppCompatActivity {
             lyOptionComment.removeAllViews();
             radioButtonArray = null;
         }
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    @Override
+    public void onBackPressed() {
+        alertDialogBasico(getString(R.string.message_audit_init) );
+        //super.onBackPressed();
+    }
+
+    private void alertDialogBasico(String message) {
+
+        // 1. Instancia de AlertDialog.Builder con este constructor
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+        // 2. Encadenar varios métodos setter para ajustar las características del diálogo
+        builder.setMessage(message);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                return;
+            }
+        });
+        builder.show();
 
     }
 
